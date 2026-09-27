@@ -184,6 +184,10 @@ number, name, and Type(s).
   state ("No [Type] favourites") is displayed.
 - **AC-4.8** — Given reading Favourites from storage fails, When I open the tab, Then an
   error + retry is shown (rather than a misleading empty state).
+- **AC-4.9** — Given the Favourites tab with saved Pokémon, When I type in the search box, Then
+  the grid narrows to Favourites whose **name or number** matches — run against the **local
+  favourites set only** (no fetch). The search box is **absent on the "No favourites yet" empty
+  state** (nothing to search) and reappears once Favourites exist.
 
 ### UC-5 — Filter by Type
 **Actor:** Trainer · **one Type at a time** ([ADR 0001](./adr/0001-hybrid-loaders-behind-one-source.md)).
@@ -251,14 +255,14 @@ applicable.
 |---|---|---|---|---|---|
 | **Browse** | skeleton grid (first) · bottom spinner (more) | — (never empty) | full-view (first load) · inline (more) | offline state | — |
 | **Detail** | skeletons | "does not evolve" (Evo tab) | whole-page (core) · per-tab (description/evolution) | offline state | 404 → "not found" + Go-to-Browse |
-| **Favourites** | instant (local) | "No favourites yet" · "No [Type] favourites" | storage read failure | — (local data) | — |
+| **Favourites** | instant (local) | "No favourites yet" · "No [Type] favourites" · "No matches" (search) | storage read failure | — (local data) | — |
 | **Type filter** | skeleton grid | defensive only (types always have members) | `/type/{type}` fetch failure | offline state | — |
 | **Search** | index loading → box disabled | "No matches" | index-load failure → "search unavailable" | offline state | — |
 
 ## 7. Information architecture
 
 - **Browse tab** — infinite-scroll grid, Type filter control, search box.
-- **Favourites tab** — Favourites grid with per-Type filtering + empty state.
+- **Favourites tab** — search box (over the saved set) + Favourites grid with per-Type filtering + empty state.
 - **Detail view** — pushed page from any card (or Evolution-stage tap, or a direct URL);
   fixed top section + About/Stats/Evolution tabs; hosts the Favourite control and the
   prev/next Pokémon navigation (enabled only from the Browse feed).

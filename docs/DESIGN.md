@@ -149,7 +149,8 @@ read as empty). Within a row, cards **stretch to fill** the width, with fixed in
 | desktop (≥1200) | 1280 | same content, **centred at 768 max-width** |
 
 - **Browse tab:** title → **capped** search bar → Type chip row → grid.
-- **Favourites tab:** Type chip row (filter) → grid.
+- **Favourites tab:** title → search bar (narrows the saved set) → Type chip row → grid; the
+  empty state omits the search (nothing to search yet).
 - **Detail:** full-colour top section (header) + tap-switched tabs on a white sheet below.
 - **Navigation:** full-width bottom tab bar (Browse · Favourites).
 
@@ -338,7 +339,7 @@ The Figma file's page structure and the order we build it.
 | 2 | Core components | reuse everywhere | **built (reference style)** |
 | 3 | Browse happy path × 3 breakpoints | UC-1, NFR-4 | **built (375 / 768 / 1280)** |
 | 4 | Detail happy path (About → Base Stats → Evolution) | UC-2, UC-3 | **built (3 artboards, one per tab)** |
-| 5 | Favourites (grid + empty) | UC-4 | pending |
+| 5 | Favourites (grid + empty) | UC-4 | **built (grid + "No favourites" empty state)** |
 | 6 | **All states** — skeletons, empties, errors, offline, 404 | §6.1 State Matrix | pending |
 | 7 | (optional) prototype wiring for a click-through of §7 | flows | pending |
 
