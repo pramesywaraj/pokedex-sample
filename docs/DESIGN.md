@@ -151,7 +151,11 @@ read as empty). Within a row, cards **stretch to fill** the width, with fixed in
 - **Browse tab:** title → **capped** search bar → Type chip row → grid.
 - **Favourites tab:** title → search bar (narrows the saved set) → Type chip row → grid; the
   empty state omits the search (nothing to search yet).
-- **Detail:** full-colour top section (header) + tap-switched tabs on a white sheet below.
+- **Detail:** mobile — full-colour top section (header) + tap-switched tabs on a white sheet
+  below. On **≥768** it becomes a **two-pane split**: the Type-colour hero (artwork, name, number,
+  pills, back/favourite — larger artwork, extra Poké Ball highlights) on the **left**, the tabs +
+  active tab body on the **right** where the content sits **directly on the white panel** (no inner
+  card). On **desktop** that 768 two-pane is a **centred floating card** on a neutral canvas.
 - **Navigation:** full-width bottom tab bar (Browse · Favourites).
 
 ---
@@ -193,7 +197,9 @@ A vertical stack over a **full-bleed Type-colour panel** that fills the whole sc
 content (**square — no corner radius**, soft Type-tinted shadow `0 10 24 @35%`). Two faint
 **Poké Ball highlights** texture the panel (`#F1F1F1` @20%, a
 boolean-**Subtract** shape so the band/button are true negative space): a large one top-right
-(~124px, ~−18°) and a small one lower-left (~83px, ~31°, bleeding off-edge).
+(~124px, ~−18°) and a small one lower-left (~83px, ~31°, bleeding off-edge). The taller
+tablet/desktop hero adds a couple more (a big one bleeding off the bottom-left + a mid-right ball)
+for richer texture.
 
 Stack, top → bottom (side padding **16** unless noted):
 1. **Header row** (h 59) — **Back `←`** left, **Favourite `♡`** right (both white, 22).
@@ -338,9 +344,9 @@ The Figma file's page structure and the order we build it.
 | 1 | Foundations (tokens + Type swatches) | design system | **built (rev-2 palette, grouped)** |
 | 2 | Core components | reuse everywhere | **built (reference style)** |
 | 3 | Browse happy path × 3 breakpoints | UC-1, NFR-4 | **built (375 / 768 / 1280)** |
-| 4 | Detail happy path (About → Base Stats → Evolution) | UC-2, UC-3 | **built (3 artboards, one per tab)** |
+| 4 | Detail happy path (About → Base Stats → Evolution) | UC-2, UC-3 | **built** — mobile 3 tabs + **two-pane About** at tablet 768 & desktop 1280 (centred card) |
 | 5 | Favourites (grid + empty) | UC-4 | **built (grid + "No favourites" empty state)** |
-| 6 | **All states** — skeletons, empties, errors, offline, 404 | §6.1 State Matrix | pending |
+| 6 | **All states** — skeletons, empties, errors, offline, 404 | §6.1 State Matrix | **built** — Browse loading (skeleton grid) / error / offline / load-more error · Search "no matches" / "unavailable" · Detail 404 / SkeletonDetail / "does not evolve" · Favourites empty / "No [Type] favourites" |
 | 7 | (optional) prototype wiring for a click-through of §7 | flows | pending |
 
 ---
@@ -354,11 +360,17 @@ scope is the PRD's: **no Moves tab, no Breeding block, no Type-defences grid** (
   error + retry · inline "couldn't load more" · offline · Type-filtered grid · Type-filter
   skeleton · Type fetch error + retry · search-narrowed · "No matches" · search index-loading
   (bar disabled) · "search unavailable".
-- **Detail:** skeletons · whole-page core error + retry · per-tab (description / Evolution)
-  error + retry · "does not evolve" · **404 not-found + Go-to-Browse** · favourited vs not ·
+- **Detail:** skeletons (mobile + two-pane **tablet/desktop**) · whole-page core error + retry · per-tab (description / Evolution)
+  error + retry · "does not evolve" · **404 not-found** — reuses the detail layout as a **mystery
+Pokémon** (desaturated panel, `???` / `#—` / Unknown, big "?" avatar) + message + Go-to-Browse ·
+favourited vs not ·
   nav enabled vs disabled vs loading · front/back Sprite flip · branching Evolution (wrap).
 - **Favourites:** grid · "No favourites yet" · Type-filtered · "No [Type] favourites" ·
   storage-read failure + retry.
+- **App-level 404 (Page not found):** a general route/URL error page (distinct from the *Pokémon*
+  not-found detail state) — built mobile / tablet / desktop. Centred **`4` · Poké Ball · `4`**
+  (the Poké Ball as the “0”, brand red), **"Page not found"**, playful copy ("slipped away into the
+  tall grass"), and a **Back to Browse** button. Wired to the router's wildcard route.
 
 ---
 
