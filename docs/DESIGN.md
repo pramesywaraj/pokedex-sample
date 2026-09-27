@@ -188,8 +188,9 @@ hint** while the index loads (AC-6.5); **“search unavailable — retry”** if
 (AC-6.6). Typing clears the active Type chip.
 
 ### DetailHeader (fixed top · auto-layout frame `Detail Layout`, 360 wide on mobile)
-A vertical stack over a **full-bleed Type-colour panel** (radius **24**, soft Type-tinted shadow
-`0 10 24 @35%`). Two faint **Poké Ball highlights** texture the panel (`#F1F1F1` @20%, a
+A vertical stack over a **full-bleed Type-colour panel** that fills the whole screen behind the
+content (**square — no corner radius**, soft Type-tinted shadow `0 10 24 @35%`). Two faint
+**Poké Ball highlights** texture the panel (`#F1F1F1` @20%, a
 boolean-**Subtract** shape so the band/button are true negative space): a large one top-right
 (~124px, ~−18°) and a small one lower-left (~83px, ~31°, bleeding off-edge).
 
@@ -200,16 +201,19 @@ Stack, top → bottom (side padding **16** unless noted):
    **translucent-white** pill (`#FFFFFF`@25%, radius **14**, h **28**), extra types **solid**
    (§2.4).
 3. **Sprites** — official **Artwork** (~**172**px, centred) with the **sprite-flip** control at
-   its bottom-right: a **30px** white circle (soft shadow) + `⇄` **vector** in `accent` red.
-   Swaps front/back Sprite (**AC-2.4**; hidden when there's no back Sprite).
+   its lower-right, sitting over the artwork: a **30px** translucent-white circle
+   (`#FFFFFF`@30%, soft shadow) + a ghosted `⇄` **vector** (`#FFFFFF`@50%). Swaps front/back
+   Sprite (**AC-2.4**; hidden when there's no back Sprite).
 4. **Tabs bar** — a **white rounded bar** (h **50**, radius ~16, inner padding **16**) floating on
    the panel: **active tab** in Type colour + underline (15/700), others `disabled` `#B8B8C4`
    (15/500).
-5. **Content card** — a **white rounded card** below the tab bar (**gap 16**), padding **24**
-   sides / **16** top; hosts the active tab body (About / Base Stats / Evolution).
+5. **Content card** — a **white bottom sheet** below the tab bar (**gap 16**): **rounded top
+   corners only** (radius 24), running to the bottom of the screen (so the Type panel reads as a
+   full-bleed backdrop behind it), padding **24** sides / **20** top. Hosts the active tab body
+   (About / Base Stats / Evolution); its height follows the tab's content.
 
-*Spacing summary:* panel radius 24 · tab-bar / content-card radius ~16 · pill radius 14 (h 28,
-gap 8) · side padding 16 (content card 24) · vertical gap 16 · sprite-flip 30px.
+*Spacing summary:* panel full-bleed (square) · tab-bar radius ~16 · content sheet top-radius 24 ·
+pill radius 14 (h 28, gap 8) · side padding 16 (content card 24) · vertical gap 16 · sprite-flip 30px.
 
 ### Detail tabs
 Ionic segment styled as a **white rounded tab bar** (separate card above the content card, per
@@ -223,8 +227,10 @@ Type-colour **label** (right-aligned) + numeric value + track (`surface`) + **`s
 row (AC-2.2). Fills grow-in when the tab opens.
 
 ### EvolutionStage / EvolutionTab
-Stages (image + name) joined by arrows; **branches wrap vertically**, never a horizontal scroll
-that would steal the swipe (AC-2.10). Current stage highlighted with an `accent` ring. Tapping a
+Laid out **one evolution step per row** — *from* stage → arrow (carrying the **evolution
+method**, e.g. *Lv. 16*) → *to* stage — stacked vertically, so **branches wrap** and there's
+never a horizontal scroll that would steal the swipe (AC-2.10). Each stage is image + name + dex
+number; the current Pokémon is highlighted with an `accent` ring. Tapping a
 stage **pushes** that Pokémon's Detail (AC-2.8). Empty state: “This Pokémon does not evolve”
 (AC-2.9).
 
