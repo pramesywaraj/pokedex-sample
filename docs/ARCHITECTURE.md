@@ -11,6 +11,18 @@
 
 ---
 
+## Tech stack
+
+| Concern | Choice | Why |
+|---|---|---|
+| UI / cross-platform | **Angular + Ionic + Capacitor** — one codebase → web + installable iOS/Android | [ADR 0002](./adr/0002-ionic-capacitor.md) |
+| State | **Angular signals** (RxJS for HTTP, search debounce, request cancellation) | [ADR 0005](./adr/0005-signals-over-ngrx.md) |
+| Persistence | **Ionic Storage** (IndexedDB; optional native SQLite later) — backs the data cache *and* Favourites (separate stores) | [ADR 0003](./adr/0003-async-cache-seam.md) |
+| Data source | **PokeAPI** (`/api/v2`) — no backend of our own | [PRD §8](./PRD.md) |
+| Tests | **Jest** — unit + component; E2E deferred | §9 |
+
+*Exact package versions are pinned at scaffold time.*
+
 ## 1. Architectural style — three floors
 
 The app is split into three layers; **calls only go downward**. This keeps each layer
