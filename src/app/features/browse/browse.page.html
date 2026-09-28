@@ -20,11 +20,13 @@
       @default {
         <div class="grid">
           @for (pokemon of feed.items(); track pokemon.id) {
-            <app-pokemon-card
-              [id]="pokemon.id"
-              [name]="pokemon.name"
-              [artworkUrl]="pokemon.artworkUrl"
-            />
+            <a class="card-link" [routerLink]="['/pokemon', pokemon.id]">
+              <app-pokemon-card
+                [id]="pokemon.id"
+                [name]="pokemon.name"
+                [artworkUrl]="pokemon.artworkUrl"
+              />
+            </a>
           }
         </div>
 

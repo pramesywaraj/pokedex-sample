@@ -9,6 +9,7 @@ import {
   IonTitle,
   IonToolbar,
 } from '@ionic/angular';
+import { RouterLink } from '@angular/router';
 import { FeedService } from '../../application/feed.service';
 import { ErrorState } from '../../shared/ui/error-state/error-state';
 import { PokemonCard } from '../../shared/ui/pokemon-card/pokemon-card';
@@ -30,6 +31,7 @@ import { SkeletonCard } from '../../shared/ui/skeleton-card/skeleton-card';
     IonInfiniteScroll,
     IonInfiniteScrollContent,
     IonButton,
+    RouterLink,
     PokemonCard,
     SkeletonCard,
     ErrorState,

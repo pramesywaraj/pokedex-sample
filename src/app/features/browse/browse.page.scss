@@ -16,6 +16,13 @@
   }
 }
 
+.card-link {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
+}
+
 .load-more-error {
   display: flex;
   align-items: center;
