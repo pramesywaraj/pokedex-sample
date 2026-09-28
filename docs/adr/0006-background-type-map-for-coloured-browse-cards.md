@@ -10,11 +10,23 @@ the Type), and a `Favourite` is stored on-device with its `types[]` (AC-4.6). **
 grid lacks Type.**
 
 We resolve it with a **Type map loaded off the scroll path**: after the startup index lands, a
-background pass loads the **18 `/type/{type}` sets** (the same endpoint the Type filter uses,
+background pass loads the `/type/{type}` sets (the same endpoint the Type filter uses,
 ADR [0001](./0001-hybrid-loaders-behind-one-source.md)) and folds them into an in-memory
 `id → PokemonTypeName[]` map. Cards render **immediately** (sprite + neutral tint) and **colour
 in** once the map is ready. There is **no per-card request** and no synchronous work on the
 scroll path.
+
+**How many calls:** PokeAPI lists **21 types, but 3 are empty** (`stellar`, `unknown`,
+`shadow`), so the pass makes **18** real calls. Together they cover **all 1351 entries, Forms
+included** (verified: the union of the sets equals the phone-book count), so every card can be
+coloured.
+
+**Timing:** the warm-up fires **right after** the startup index and the first Browse page — not
+bundled in with them — so it doesn't compete with the cards and search for the browser's ~6
+concurrent download slots. And it is only ever an **optimisation**: the Type filter has its
+**own on-demand fetch** ([ADR 0007](./0007-name-index-separate-from-type-map.md)), so if a user
+filters before the warm-up reaches that Type, the filter fetches it itself (brief skeleton, then
+results) and caches it. Nothing ever *depends* on the warm-up having finished.
 
 This is deliberately *only* a colour-metadata layer. **Browse paging still follows the list
 `next` links** — the real network-paged scroll that ADR 0001 chose is untouched; the map does

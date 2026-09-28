@@ -61,7 +61,7 @@ Favourites live only on their own device.
 | Need | Endpoint | Behaviour |
 |---|---|---|
 | Browse all | `GET /pokemon?offset&limit` | Pages cleanly; follow the response's `next` link to page. Returns `{name, url}` only |
-| Full index ("phone book") | `GET /pokemon?limit=1` (read `count`) → `GET /pokemon?limit={count}` | Loaded **once at startup**; **count-then-fetch** so no hardcoded limit to outgrow. `{name, url}` only (~100 KB). Shared by search + swipe |
+| Full index ("phone book") | `GET /pokemon?limit=1` (read `count`) → `GET /pokemon?limit={count}` | Loaded **once at startup**; **count-then-fetch** so no hardcoded limit to outgrow. `{name, url}` only (~100 KB). Shared by search + swipe. Kept **separate** from the Type map ([ADR 0007](./adr/0007-name-index-separate-from-type-map.md)) — not merged into it, so one failed request can't silently drop Pokémon |
 | Filter by Type | `GET /type/{type}` | Returns the **whole** Type set at once, unpaged |
 | Search by name/number | `GET /pokemon/{name\|id}` | **Exact match only**; partial matching runs against the in-memory index |
 | Next/previous Pokémon | in-memory index (position ±1) | Single path; steps over the id gap; used by detail swipe. Fetch the neighbour's profile on demand |
@@ -279,7 +279,7 @@ and avoid request floods per its fair-use policy.
 |---|---|---|
 | S1 | Persistent offline cache (Ionic Storage / SQLite) | Additive on the async cache seam; biggest UX win if time allows |
 | S2 | Search autocomplete dropdown | Matching already works via grid filter; dropdown is polish |
-| S3 | Multi-type filtering (any-of / all-of) | Multiplies fetch/merge logic and muddies acceptance criteria |
+| S3 | Multi-type filtering (any-of / all-of) | Deferred to keep v1's acceptance criteria clean (one Type at a time). Now a **cheap** future add: the background Type map ([ADR 0006](./adr/0006-background-type-map-for-coloured-browse-cards.md)) already holds every Pokémon's Type(s), so "Water **or** Flying" / "Water **and** Flying" is an in-memory filter with **no extra fetches** — the remaining work is mostly UI (multi-select) and the extra test cases |
 | S4 | Combine search **with** Type filter | Alternative modes suffice for v1 |
 | S5 | Type colour on browse cards — **adopted in rev 2** (reference design) | Was deferred for scroll-flood risk; now in, with Type resolved via cached/background lookup, not a synchronous per-card fetch (see NFR-1 note & [DESIGN.md](./DESIGN.md) §2.3) |
 | S6 | Moves list on detail | Large, low payoff per effort |
