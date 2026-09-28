@@ -4,6 +4,44 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content class="ion-padding">
-  <p>The Pokédex is warming up.</p>
+<ion-content>
+  <div class="page">
+    @switch (feed.status()) {
+      @case ('loading') {
+        <div class="grid" aria-hidden="true">
+          @for (skeleton of skeletons; track $index) {
+            <app-skeleton-card />
+          }
+        </div>
+      }
+      @case ('error') {
+        <app-error-state message="Couldn't load the Pokédex." (retry)="feed.loadNext()" />
+      }
+      @default {
+        <div class="grid">
+          @for (pokemon of feed.items(); track pokemon.id) {
+            <app-pokemon-card
+              [id]="pokemon.id"
+              [name]="pokemon.name"
+              [artworkUrl]="pokemon.artworkUrl"
+            />
+          }
+        </div>
+
+        @if (feed.loadMoreError()) {
+          <div class="load-more-error">
+            <span>Couldn't load more.</span>
+            <ion-button fill="clear" size="small" (click)="feed.loadNext()">Retry</ion-button>
+          </div>
+        }
+
+        <ion-infinite-scroll
+          [disabled]="!feed.hasMore() || feed.loadMoreError()"
+          (ionInfinite)="onInfinite($event)"
+        >
+          <ion-infinite-scroll-content loadingSpinner="crescent"></ion-infinite-scroll-content>
+        </ion-infinite-scroll>
+      }
+    }
+  </div>
 </ion-content>

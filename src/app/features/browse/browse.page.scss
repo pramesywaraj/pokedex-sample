@@ -1,0 +1,27 @@
+.page {
+  max-width: 768px;
+  margin: 0 auto;
+  padding: var(--pkx-space-20) var(--pkx-space-16) var(--pkx-space-16);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--pkx-space-12);
+}
+
+@media (min-width: 768px) {
+  .grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.load-more-error {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--pkx-space-8);
+  padding: var(--pkx-space-16);
+  color: var(--pkx-muted);
+  font-size: var(--pkx-text-body-size);
+}
