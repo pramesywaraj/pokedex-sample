@@ -17,5 +17,9 @@ export const routes: Routes = [
       { path: '', redirectTo: 'browse', pathMatch: 'full' },
     ],
   },
+  {
+    path: 'pokemon/:id',
+    loadComponent: () => import('./features/detail/detail.page').then((m) => m.DetailPage),
+  },
   { path: '', redirectTo: 'tabs/browse', pathMatch: 'full' },
 ];

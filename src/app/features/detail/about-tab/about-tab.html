@@ -1,0 +1,34 @@
+@switch (descriptionStatus()) {
+  @case ('ready') {
+    <p class="description">{{ description() }}</p>
+  }
+  @case ('error') {
+    <div class="description-error">
+      <span>Couldn't load the description.</span>
+      <ion-button fill="clear" size="small" (click)="retryDescription.emit()">Retry</ion-button>
+    </div>
+  }
+  @default {
+    <div class="description-loading" aria-hidden="true">
+      <span class="line"></span>
+      <span class="line wide"></span>
+      <span class="line short"></span>
+    </div>
+  }
+}
+
+<div class="physique">
+  <div class="col">
+    <span class="label">Height</span>
+    <span class="value">{{ heightLabel() }}</span>
+  </div>
+  <div class="col">
+    <span class="label">Weight</span>
+    <span class="value">{{ weightLabel() }}</span>
+  </div>
+</div>
+
+<div class="abilities">
+  <span class="label">Abilities</span>
+  <span class="value">{{ abilitiesLabel() }}</span>
+</div>

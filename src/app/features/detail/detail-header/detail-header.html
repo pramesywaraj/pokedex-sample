@@ -1,0 +1,41 @@
+<div class="header-row">
+  <button type="button" class="icon-btn" aria-label="Back" (click)="back.emit()">
+    <ion-icon name="arrow-back" aria-hidden="true"></ion-icon>
+  </button>
+</div>
+
+<div class="top-info">
+  <div class="title-row">
+    <h1 class="name">{{ pokemon().name }}</h1>
+    <div class="ident">
+      <span class="number">{{ numberLabel() }}</span>
+      @if (category(); as category) {
+        <span class="category">{{ category }}</span>
+      }
+    </div>
+  </div>
+
+  <div class="pills">
+    <app-type-badge [type]="primaryType()" variant="primary" />
+    @for (type of extraTypes(); track type) {
+      <app-type-badge [type]="type" variant="solid" />
+    }
+  </div>
+</div>
+
+<div class="sprites">
+  <div class="art">
+    <app-sprite-image [src]="displaySrc()" [alt]="displayAlt()" />
+  </div>
+  @if (canFlip()) {
+    <button
+      type="button"
+      class="flip"
+      [attr.aria-pressed]="flipped()"
+      aria-label="Flip to the other side"
+      (click)="toggleFlip()"
+    >
+      <ion-icon name="swap-horizontal" aria-hidden="true"></ion-icon>
+    </button>
+  }
+</div>

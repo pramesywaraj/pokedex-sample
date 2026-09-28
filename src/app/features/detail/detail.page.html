@@ -1,0 +1,41 @@
+<ion-content [fullscreen]="true">
+  @switch (detail.status()) {
+    @case ('loading') {
+      <app-skeleton-detail />
+    }
+    @case ('notFound') {
+      <app-not-found-detail (back)="back()" (goToBrowse)="goToBrowse()" />
+    }
+    @case ('error') {
+      <div class="page-error">
+        <app-error-state message="Couldn't load this Pokémon." (retry)="detail.retry()" />
+      </div>
+    }
+    @default {
+      <div class="detail" [style.--panel]="panelVar()" [style.--active]="panelVar()">
+        <app-pokeball-backdrop />
+
+        <app-detail-header
+          [pokemon]="detail.pokemon()!"
+          [category]="detail.category()"
+          (back)="back()"
+        />
+
+        <nav class="tabs" aria-label="Detail sections">
+          <span class="tab active" aria-current="true">About</span>
+          <span class="tab" aria-disabled="true">Base Stats</span>
+          <span class="tab" aria-disabled="true">Evolution</span>
+        </nav>
+
+        <section class="sheet">
+          <app-about-tab
+            [pokemon]="detail.pokemon()!"
+            [description]="detail.description()"
+            [descriptionStatus]="detail.descriptionStatus()"
+            (retryDescription)="detail.retryDescription()"
+          />
+        </section>
+      </div>
+    }
+  }
+</ion-content>

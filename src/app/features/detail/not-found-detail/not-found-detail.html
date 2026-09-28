@@ -1,0 +1,27 @@
+<div class="not-found">
+  <app-pokeball-backdrop />
+
+  <div class="header-row">
+    <button type="button" class="icon-btn" aria-label="Back" (click)="back.emit()">
+      <ion-icon name="arrow-back" aria-hidden="true"></ion-icon>
+    </button>
+  </div>
+
+  <div class="top-info">
+    <h1 class="name">???</h1>
+    <div class="ident">
+      <span class="number">#—</span>
+      <span class="category">Unknown</span>
+    </div>
+  </div>
+
+  <div class="avatar" aria-hidden="true">
+    <span class="mark">?</span>
+  </div>
+
+  <section class="sheet">
+    <h2 class="title">Pokémon not found</h2>
+    <p class="message">We couldn't find that Pokémon. It may not exist.</p>
+    <ion-button expand="block" shape="round" (click)="goToBrowse.emit()">Go to Browse</ion-button>
+  </section>
+</div>

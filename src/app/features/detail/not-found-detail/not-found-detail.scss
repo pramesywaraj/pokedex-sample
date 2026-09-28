@@ -1,0 +1,125 @@
+:host {
+  display: block;
+  min-height: 100%;
+}
+
+.not-found {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+  background: var(--pkx-panel-unknown);
+  color: var(--pkx-on-type);
+  overflow: hidden;
+}
+
+.icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  margin-left: calc(var(--pkx-space-8) * -1);
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--pkx-on-type);
+  cursor: pointer;
+}
+
+.icon-btn ion-icon {
+  font-size: 24px;
+}
+
+.header-row {
+  position: relative;
+  padding: var(--pkx-space-8) var(--pkx-space-16) 0;
+}
+
+.top-info {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--pkx-space-16);
+  padding: var(--pkx-space-8) var(--pkx-space-16) 0;
+}
+
+.name {
+  margin: 0;
+  font-size: var(--pkx-text-detail-name-size);
+  font-weight: var(--pkx-text-detail-name-weight);
+  line-height: 1.1;
+}
+
+.ident {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  text-align: right;
+}
+
+.number {
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.category {
+  font-size: 13px;
+  font-weight: 500;
+  opacity: 0.9;
+}
+
+.avatar {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 184px;
+  height: 184px;
+  margin: var(--pkx-space-24) auto;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.mark {
+  font-size: 120px;
+  font-weight: 700;
+  line-height: 1;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.sheet {
+  position: relative;
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--pkx-space-12);
+  padding: var(--pkx-space-32) var(--pkx-space-24) var(--pkx-space-40);
+  background: var(--pkx-bg);
+  border-radius: var(--pkx-radius-sheet) var(--pkx-radius-sheet) 0 0;
+  text-align: center;
+}
+
+.title {
+  margin: 0;
+  color: var(--pkx-ink);
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.message {
+  margin: 0;
+  color: var(--pkx-muted);
+  font-size: var(--pkx-text-body-size);
+}
+
+.sheet ion-button {
+  width: 100%;
+  max-width: 280px;
+  margin-top: var(--pkx-space-8);
+  --background: var(--pkx-accent);
+  --background-activated: var(--pkx-accent);
+  --border-radius: var(--pkx-radius-pill);
+}

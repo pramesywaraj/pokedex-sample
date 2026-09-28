@@ -1,0 +1,53 @@
+.detail {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+  background: var(--panel);
+  overflow: hidden;
+}
+
+.tabs {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  gap: var(--pkx-space-8);
+  margin: var(--pkx-space-16) var(--pkx-space-16) 0;
+  padding: 0 var(--pkx-space-8);
+  height: 50px;
+  align-items: center;
+  background: var(--pkx-bg);
+  border-radius: var(--pkx-radius-card);
+  box-shadow: var(--pkx-shadow-soft);
+}
+
+.tab {
+  flex: 1;
+  text-align: center;
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--pkx-disabled);
+  padding: var(--pkx-space-8) 0;
+}
+
+.tab.active {
+  font-weight: 700;
+  color: var(--active);
+}
+
+.sheet {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  margin-top: var(--pkx-space-16);
+  padding: var(--pkx-space-20) var(--pkx-space-24) var(--pkx-space-40);
+  background: var(--pkx-bg);
+  border-radius: var(--pkx-radius-sheet) var(--pkx-radius-sheet) 0 0;
+}
+
+.page-error {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100%;
+}
