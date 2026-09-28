@@ -1,10 +1,11 @@
 import { Component } from '@angular/core';
 import { IonIcon, IonLabel, IonTabBar, IonTabButton, IonTabs } from '@ionic/angular';
 import { addIcons } from 'ionicons';
-import { apps, heart } from 'ionicons/icons';
+import { heart } from 'ionicons/icons';
 
 // Register the tab-bar icons once for the app, not per component instance.
-addIcons({ apps, heart });
+// Browse uses a custom Poké Ball SVG loaded by src, so only heart is registered.
+addIcons({ heart });
 
 /**
  * The app's two-tab shell (Browse · Favourites). Hosts the bottom tab bar and
