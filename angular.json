@@ -3,10 +3,7 @@
   "version": 1,
   "cli": {
     "packageManager": "npm",
-    "schematicCollections": [
-      "angular-eslint",
-      "@ionic/angular-toolkit"
-    ],
+    "schematicCollections": ["angular-eslint", "@ionic/angular-toolkit"],
     "analytics": "1b843c39-d47e-4713-a860-9b16c35e3244"
   },
   "newProjectRoot": "projects",
@@ -28,6 +25,7 @@
             "browser": "src/main.ts",
             "tsConfig": "tsconfig.app.json",
             "inlineStyleLanguage": "scss",
+            "allowedCommonJsDependencies": ["localforage"],
             "assets": [
               {
                 "glob": "**/*",
@@ -81,7 +79,7 @@
               "budgets": [
                 {
                   "type": "initial",
-                  "maximumWarning": "600kB",
+                  "maximumWarning": "700kB",
                   "maximumError": "1MB"
                 },
                 {
