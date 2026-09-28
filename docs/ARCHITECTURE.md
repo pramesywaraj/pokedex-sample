@@ -20,7 +20,7 @@ testable in isolation and puts every external dependency behind a seam.
 ┌─────────────────────────────────────────────┐
 │ PRESENTATION   pages + components (Ionic)     │  display & user actions only
 ├─────────────────────────────────────────────┤
-│ APPLICATION    services holding state (signals)│  app logic: feed, index, favourites, network
+│ APPLICATION    services holding state (signals)│  app logic: feed, index, detail, favourites, network
 ├─────────────────────────────────────────────┤
 │ DATA           repository, API client, cache, │  talks to PokeAPI + device storage,
 │                mappers, storage adapters       │  behind interfaces
@@ -28,8 +28,9 @@ testable in isolation and puts every external dependency behind a seam.
 ```
 
 Dependency rule: **presentation → application → data**. Presentation never imports the API
-client or `HttpClient`; data never imports a component. Swapping a data-layer piece
-(in-memory cache → disk) leaves the upper floors untouched ([ADR 0003](./adr/0003-async-cache-seam.md)).
+client or `HttpClient`; data never imports a component. Swapping a data-layer piece — the
+cache's backing store (test fake ↔ Ionic Storage ↔ native SQLite), or the API client — leaves
+the upper floors untouched ([ADR 0003](./adr/0003-async-cache-seam.md)).
 
 ## 2. Domain models
 
@@ -43,11 +44,12 @@ export type PokemonTypeName =
   | 'dragon' | 'dark' | 'steel' | 'fairy';
 
 export interface PokemonSummary {   // phone-book entry + browse/favourite card
-  id: number;                       // 1..1025, or 10001+ for Forms
+  id: number;                       // PokeAPI entry id: 1..1025, or 10001+ for Forms
   name: string;                     // title-cased, de-hyphenated
-  imageUrl: string;                 // official artwork, derived from id (no request); lazy-loaded on cards
-  types?: PokemonTypeName[];        // from the background Type map (ADR 0006); undefined until it lands → card shows a neutral tint
+  artworkUrl: string;               // official artwork, derived from id (no request); lazy-loaded on cards
 }
+// Type is deliberately NOT on the summary: PokemonCard takes `types` as an input and reads it
+// live from the background map via typesOf(id) (ADR 0006, ADR 0007); undefined → neutral tint.
 
 export interface StatSet {
   hp: number; attack: number; defense: number;
@@ -56,21 +58,23 @@ export interface StatSet {
 }
 
 export interface Pokemon {          // core /pokemon/{id}
-  id: number; name: string;
-  types: PokemonTypeName[];
+  id: number;                       // PokeAPI entry id (10001+ for Forms)
+  speciesId: number;                // = National Dex number; drives species/evolution fetch (ADR 0008)
+  name: string;
+  types: PokemonTypeName[];         // slot-ordered: types[0] is the primary Type
   heightM: number; weightKg: number;
   stats: StatSet; abilities: string[];
   artworkUrl: string; frontSpriteUrl: string; backSpriteUrl: string | null;
 }
 
-export interface Species {          // /pokemon-species/{id}
+export interface Species {          // /pokemon-species/{speciesId}
   category: string;                 // genus, e.g. "Seed Pokémon"
   description: string;              // cleaned English flavour text
-  evolutionChainUrl: string;
+  evolutionChainId: number;         // parsed from the DTO's evolution_chain.url at the data boundary
 }
 
-export interface EvolutionNode {    // /evolution-chain/{id}, tree (branching)
-  id: number; name: string; spriteUrl: string;
+export interface EvolutionNode {    // /evolution-chain/{chainId}, tree (branching)
+  id: number; name: string; artworkUrl: string;   // artwork derived from id (no request)
   evolvesTo: EvolutionNode[];
 }
 
@@ -84,17 +88,19 @@ export interface Favourite {        // stored on device
 Small interfaces hiding a lot of behaviour — the deep modules of the design.
 
 ```ts
-// Async cache — in-memory now, Ionic Storage later, no caller change (ADR 0003)
+// Async cache — Ionic Storage (IndexedDB) from v1, behind one seam (ADR 0003)
 export interface Cache {
   get<T>(key: string): Promise<T | undefined>;
   set<T>(key: string, value: T): Promise<void>;
+  clear(): Promise<void>;                         // used on cache-version mismatch (§4a)
 }
 
 // One grid, many loaders — server-paged browse vs client-paged type/search (ADR 0001)
 export interface PokemonPage { items: PokemonSummary[]; hasMore: boolean; }
 export interface PokemonSource { loadNext(): Promise<PokemonPage>; reset(): void; }
 
-// Favourites persistence — localStorage/IndexedDB on web, SQLite on native (ADR 0002)
+// Favourites persistence — Ionic Storage (IndexedDB by default; optional native SQLite),
+// a store separate from the data cache (ADR 0002)
 export interface FavouritesStore {
   all(): Promise<Favourite[]>;
   add(f: Favourite): Promise<void>;
@@ -107,30 +113,76 @@ export interface FavouritesStore {
 - **`PokeApiClient`** — the only place that touches `HttpClient` / PokeAPI URLs.
 - **Mappers** (`mappers/`) — pure functions: raw DTO → domain model. Unit-tested with tiny
   fixtures. Handle the messy bits: pick English flavour text and strip `\f\n`, title-case
-  Form names, derive sprite/artwork URLs from id, sum the stat total.
+  Form names, derive sprite/artwork URLs from id, sum the stat total, read `speciesId` from the
+  `/pokemon` response's `species` ref, and parse `evolutionChainId` from the species DTO's
+  `evolution_chain.url`.
 - **`PokemonRepository`** — the fetch-or-reuse boundary. Every read goes through the `Cache`
-  first; on miss it calls the client, maps to a domain model, stores it, returns it.
+  first; on miss it calls the client, maps to a domain model, stores it, returns it. It also
+  **coalesces in-flight requests** (single-flight): concurrent misses for the same key share one
+  request, so a thing is fetched from the network **at most once** (NFR-2).
 
 ```ts
 @Injectable({ providedIn: 'root' })
 export class PokemonRepository {
   getIndex(): Promise<PokemonSummary[]>;      // count-then-fetch, cached as "index" (ADR 0004)
-  getPage(next: string | null): Promise<PokemonPage>;  // follows the list `next` link
-  getByType(type: PokemonTypeName): Promise<PokemonSummary[]>;
-  getPokemon(id: number): Promise<Pokemon>;   // cached "pokemon:{id}"
-  getSpecies(id: number): Promise<Species>;   // cached "species:{id}"
-  getEvolution(url: string): Promise<EvolutionNode>;
+  getPage(next: string | null): Promise<PokemonPage>;  // follows the list `next` link (live-paged, not cached)
+  getByType(type: PokemonTypeName): Promise<PokemonSummary[]>;   // filter grid; from cached "type:{name}"
+  getTypeIndex(): Promise<Map<number, PokemonTypeName[]>>;       // folds the 18 "type:{name}" sets → id→types[], primary-first via slot (ADR 0006)
+  getPokemon(id: number): Promise<Pokemon>;              // by entry id, cached "pokemon:{id}"
+  getSpecies(speciesId: number): Promise<Species>;       // by species id, cached "species:{speciesId}" (Form + base share)
+  getEvolution(chainId: number): Promise<EvolutionNode>; // cached "evolution:{chainId}" (a family shares one)
 }
 ```
 
-Cache keys: `index`, `pokemon:{id}`, `species:{id}`, `evolution:{id}`, `type:{name}`.
+Cache keys: `index`, `pokemon:{id}`, `species:{speciesId}`, `evolution:{chainId}`,
+`type:{name}` (each type set stored with per-member `slot`). See §4a for the caching strategy.
+
+### 4a. Caching strategy
+
+**Persistent from v1.** The `Cache` is backed by **Ionic Storage** (IndexedDB on web/desktop
+and native by default; an optional native SQLite driver is a later hardening step) so fetched
+data **survives app reopen** — a warm start with no re-fetch of what's been seen
+([ADR 0003](./adr/0003-async-cache-seam.md)). This is *not* offline: card/sprite images load
+from the PokeAPI CDN and are **not** in this cache, so true offline (image caching) stays
+stretch **S1**.
+
+**Two tiers.**
+- **(a) Persistent cache** — normalised, **one record per PokeAPI resource**, keyed as above.
+  A Pokémon's detail is *not* one nested blob; e.g. Charizard is `pokemon:6` + `species:6` +
+  `evolution:2`, stitched in memory by `DetailService` at runtime. Normalising lets a Form share
+  its base's `species`/`evolution`, a family share one `evolution:{chainId}`, and the parts
+  load/fail independently (per-tab errors, lazy evolution).
+- **(b) In-memory session state** — rebuilt each launch: the ordered index + `positionOf`/
+  `neighbours`/`search`, the folded colour map (`typesOf`), `FeedService` items, per-screen
+  `DetailService` state. The colour map is **re-folded** from the persisted `type:{name}` sets
+  (not itself persisted); the browse grid stays **live-paged** (ADR 0001), so a warm reopen
+  re-fetches page 1 while details behind it are cache hits.
+
+**Freshness.** PokeAPI reference data is **immutable**, so entries are **cached indefinitely —
+no TTL, no invalidation**. The only mutable data, Favourites, lives in a **separate** store.
+
+**Versioning.** A `cacheVersion` constant is stored with the data. On startup, if it mismatches
+(or is absent), the **data cache is cleared** (`Cache.clear()`) and rebuilt cold; **Favourites
+are never touched**. Bump it whenever a persisted record's shape changes between releases.
+
+**Housekeeping.** No **negative caching** (a 404 re-hits; it flows through `notFound`, not the
+cache). No **eviction** (the dex is bounded to a few MB). A failed cache **write** is swallowed
+(the app still works from the network) — unlike a Favourites-store **read** failure, which is
+shown (AC-4.8).
 
 ### HTTP interceptors
 
 - **retry-backoff** — retries a failed request ~2× with short increasing delay (heals blips
-  and stray 429s) before the error surfaces (NFR-2).
+  and stray 429s) before the error surfaces (NFR-2). **When the network is already known to be
+  offline** (NetworkService), it **skips the retries** and surfaces `offline` immediately (fail
+  fast), auto-recovering on reconnect (NFR-3).
 - **error-normalise** — maps transport errors to a small `AppError` (`offline | notFound |
   transient`) so the UI branches cleanly (drives the 404 "not found" vs retry split).
+
+`AppError` is the UI's **shared error vocabulary**, not only the interceptor's output:
+`offline | notFound | transient | storage`. The interceptor produces the first three; the
+Favourites/storage layer produces `storage` (AC-4.8). A favourite **write** failure is not a
+distinct state — the heart reverts to its real value.
 
 ## 5. Application layer (services + signals)
 
@@ -140,11 +192,13 @@ cancelling obsolete requests.
 
 - **`PokemonIndexService`** — loads the phone book once at **app startup** via the repository;
   exposes `ready` (signal), `positionOf(id)`, `neighbours(id)` (±1), and `search(text)`
-  (partial name/number match over the index). After the index lands it **also loads the 18
-  `/type` sets in the background** and folds them into an `id → Type(s)` map
-  ([ADR 0006](./adr/0006-background-type-map-for-coloured-browse-cards.md)), exposing
-  `typesOf(id)` + a `typesReady` signal so Browse cards colour in with **no per-card request**
-  (NFR-1). The same `/type` sets warm the Type filter.
+  (partial name/number match over the index). After the index lands it **triggers the background
+  Type warm-up** and *holds* the result: it calls `repository.getTypeIndex()` (which fetches the
+  18 `/type` sets and **folds** them into the `id → Type(s)` map, primary-first via `slot`) and
+  exposes `typesOf(id)` + a `typesReady` signal, so Browse cards colour in with **no per-card
+  request** (NFR-1). Building the map lives in the repository (data-shaping); the service only
+  *holds* it ([ADR 0006](./adr/0006-background-type-map-for-coloured-browse-cards.md)). The same
+  `/type` sets warm the Type filter.
 - **`FeedService`** — powers the Browse grid (UC-1/5/6). Holds the active mode
   (`browse | type | search`) and the current items + status as signals, delegating to the
   right `PokemonSource`. Switching mode calls `reset()` then `loadNext()`.
@@ -152,6 +206,14 @@ cancelling obsolete requests.
   `isFavourite(id)`, and `byType(type)` for the Favourites filter (types are stored, no fetch).
 - **`NetworkService`** — an `online` signal from the platform (Capacitor Network / `navigator.onLine`)
   driving the offline state + auto-recover (NFR-3).
+- **`DetailService`** — owns a **single detail screen**: it is **provided per `DetailPage`
+  instance** (not root), so evolution-jump pushes keep their own state while the cache stays
+  app-wide. It orchestrates the fetches (`getPokemon` → read `speciesId` → `getSpecies` → lazy
+  `getEvolution(chainId)` on the Evolution tab), holds their **per-part** loading/error signals
+  (whole-page for the core call, per-tab for description/evolution), resolves the **404**
+  not-found state, keeps the Favourite control on the **current** Pokémon (AC-2.17), and — when
+  swipe is enabled — **prefetches the ±1 neighbours** (Pokémon + species; evolution stays lazy),
+  cancelling obsolete prefetches on rapid swipe. Delegates all fetching to the repository.
 
 ```ts
 @Injectable({ providedIn: 'root' })
@@ -177,6 +239,12 @@ export class FeedService {
 `SkeletonCard` / `SkeletonDetail`, `EmptyState`, `ErrorState` (message + retry). These realise
 the [State Matrix](./PRD.md#61-state-matrix) consistently across views.
 
+> **`PokemonCard` is a dumb, reusable primitive**: it takes `types` as an **input** (it does no
+> fetching, and there is no `PokemonSummary.types`). Browse & Type-filter grids bind
+> `typesOf(id)` — reactive, so cards re-colour when the map fills; Favourites binds the stored
+> `types` (AC-4.6). One card, three wiring sources
+> ([ADR 0007](./adr/0007-name-index-separate-from-type-map.md)).
+
 ## 7. Routing
 
 ```ts
@@ -195,6 +263,13 @@ export const routes: Routes = [
 - Swipe **replaces** the URL (`replaceUrl: true`) so Back returns to the browse list (AC-2.14).
 - Cold deep-link with no history → Back falls back to `tabs/browse` (AC-2.16).
 - Swipe/arrows enabled only when the feed mode is `browse` (AC-2.11 / AC-2.15).
+- **"Swipe-enabled" is carried in the router's navigation *state*, not the URL**, so shared/deep
+  links stay clean (`/pokemon/25`). Browse origin passes "enabled"; Favourites / Type filter /
+  search pass "disabled" (AC-2.15). When the flag is **absent** (refresh, cold deep-link, share)
+  it **defaults to Browse context**: swipe enabled (loading until the index lands, AC-2.13b),
+  Back → Browse (AC-2.16). The same flag gates neighbour prefetch (§8).
+- **Navigate only via the Angular router** (never `window.location` / a hard `href` to an
+  internal route) — a hard reload needlessly throws away the in-memory session state and cache.
 
 ## 8. Cross-cutting concerns
 
@@ -206,8 +281,13 @@ export const routes: Routes = [
   fades into the Browse skeleton; it does **not** wait on `PokemonIndexService.ready` — search/swipe
   stay disabled until the index lands (AC-2.13b / AC-6.5). Visual spec:
   [DESIGN §6 SplashScreen](./DESIGN.md).
-- **Prefetch** — on a Browse-origin detail, `PokemonIndexService.neighbours(id)` gives ±1, and
-  the repository prefetches their full bundle; obsolete prefetches are cancelled on rapid swipe.
+- **Prefetch** — on a Browse-origin detail (swipe enabled), `DetailService` uses
+  `PokemonIndexService.neighbours(id)` for the ±1 ids and asks the repository to warm each
+  neighbour's **Pokémon + species** (enough for the default About tab to appear instantly;
+  **evolution stays lazy**, loaded only when its tab opens). `DetailService` cancels obsolete
+  warm-ups on rapid swipe — but never a request a landed-on Pokémon is waiting on, and
+  single-flight coalescing (§4) means a prefetch and a real navigation to the same id share one
+  request.
 - **Accessibility** — `SpriteImage` requires alt text; arrows are focusable with ←/→ bindings;
   Ionic components provide roles/labels.
 - **Theming** — Ionic CSS variables; a `PokemonTypeName → colour` map for `TypeBadge`;
@@ -218,8 +298,8 @@ export const routes: Routes = [
 | Layer | What we test | How |
 |---|---|---|
 | Mappers | DTO → domain correctness, flavour-text cleaning, Form naming | tiny JSON fixtures |
-| Repository | fetch-or-reuse, cache keys, count-then-fetch, `next` paging | fake `HttpClient` + in-memory `Cache` |
-| Services | feed mode switching, index neighbours/search, favourites, offline | mocked repository/stores |
+| Repository | fetch-or-reuse, cache keys, count-then-fetch, `next` paging, single-flight coalescing, cache versioning, `getTypeIndex` fold (primary-first) | fake `HttpClient` + in-memory `Cache` |
+| Services | feed mode switching, index neighbours/search, favourites, offline, detail orchestration (fetch order, per-part errors, 404, prefetch) | mocked repository/stores |
 | Components | rendering per state (loading/empty/error), user actions | mocked services, Ionic test utils |
 
 Interceptors (retry-backoff, error-normalise) are unit-tested directly. E2E is deferred (§9 S7).
@@ -229,16 +309,18 @@ Interceptors (retry-backoff, error-normalise) are unit-tested directly. E2E is d
 - One Angular + Ionic codebase. **Web:** `ng build` / `ionic serve`. **Native:** Capacitor
   wraps the web build — `npx cap add ios|android`, `npx cap sync`, open in Xcode/Android Studio.
 - No secrets/API keys (PokeAPI is open). Base URL in an environment file.
+- **Persistence:** Ionic Storage (IndexedDB) on web/desktop and native in v1 — no extra setup;
+  an optional native SQLite driver is a later hardening step (§4a, [ADR 0003](./adr/0003-async-cache-seam.md)).
 
 ## 11. Traceability (PRD → design)
 
 | PRD | Realised by |
 |---|---|
 | UC-1 Browse | `FeedService` (browse mode) + `PokemonRepository.getPage` + `BrowsePage`/`PokemonCard` (Type-coloured via the background Type map, [ADR 0006](./adr/0006-background-type-map-for-coloured-browse-cards.md)) |
-| UC-2 Detail + swipe | `DetailPage`+tabs, `PokemonNav`, `PokemonIndexService.neighbours`, prefetch |
+| UC-2 Detail + swipe | `DetailService` (per screen) + `DetailPage`+tabs, `PokemonNav`, `PokemonIndexService.neighbours`, prefetch |
 | UC-3 Images | `SpriteImage`, derived URLs, mappers |
 | UC-4 Favourites | `FavouritesService` + `FavouritesStore` (Ionic Storage) + `FavouritesPage` |
 | UC-5 Type filter | `FeedService` (type mode) + `PokemonRepository.getByType` + `TypeFilter` |
 | UC-6 Search | `PokemonIndexService.search` + `FeedService` (search mode) + `SearchBar` |
-| NFR-2 cache/prefetch | `Cache` seam + `PokemonRepository` + index startup load |
+| NFR-2 cache/prefetch | persistent `Cache` seam (Ionic Storage) + `PokemonRepository` (single-flight) + `getTypeIndex` + index startup load + `DetailService` prefetch |
 | NFR-3 states | shared state components + `AppError` + `NetworkService` |

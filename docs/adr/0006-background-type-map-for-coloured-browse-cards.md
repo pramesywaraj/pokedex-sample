@@ -1,7 +1,7 @@
 # 0006 — Background Type map for Type-coloured browse cards
 
 The reference-aligned UI ([DESIGN.md](../DESIGN.md) rev 2) **colours each Browse card by its
-Type**. But a card is built from `PokemonSummary` `{id, name, spriteUrl}`, and the startup
+Type**. But a card is built from `PokemonSummary` `{id, name, artworkUrl}`, and the startup
 index (the "phone book", `GET /pokemon?limit={count}`) returns only `{name, url}` — **neither
 carries a Type**. And **NFR-1** forbids per-card network requests so the scroll never stutters.
 
@@ -47,10 +47,14 @@ not become the paging source (ADR 0001 explicitly rejected a client-side index *
 - ~18 extra requests at startup, **in the background** and **cached** via the async cache seam
   (ADR [0003](./0003-async-cache-seam.md)). Much of this is **shared** with the Type filter,
   which loads the same `/type` sets on demand — a warmed map means instant filtering too.
-- `PokemonSummary` gains an optional **`types?: PokemonTypeName[]`**, populated from the map;
-  `undefined` until it lands, which the card renders as a **neutral placeholder tint**.
-- `PokemonIndexService` owns the map alongside the phone book: `typesOf(id)` + a `typesReady`
-  signal. The map is built once and reused; no refetch on repeat browsing.
+- Type is **not stored on `PokemonSummary`**. `PokemonCard` takes `types` as an **input** and
+  reads it **live** from the map via `typesOf(id)` (a reactive signal), so already-rendered cards
+  **re-colour** the instant the map lands — no "go back and fix the summaries" logic
+  ([ADR 0007](./0007-name-index-separate-from-type-map.md)). `undefined` → **neutral tint**.
+- The map is **built in the repository** (`getTypeIndex()` folds the 18 cached `/type` sets into
+  `id → Type(s)`, **primary-first via each member's `slot`** so cards take the *primary* Type
+  colour); `PokemonIndexService` **holds** it as `typesOf(id)` + a `typesReady` signal. Built
+  once, reused; the same cached `type:{name}` sets serve the filter (`getByType`).
 - `PokemonCard` must handle the "Type not yet known" state gracefully (neutral → colour-in),
   which doubles as a mild resilience win if a `/type` set fails.
 - Consistent with ADR 0001 (scroll stays network-paged) and NFR-1 (no per-card fetch on the

@@ -21,6 +21,9 @@ _Avoid_: user, player, account
 
 **Dex number**:
 A Pokémon's National Pokédex number — its stable numeric identifier (e.g. Pikachu is 25).
+In PokeAPI this is the **species id**. For a base Pokémon it also equals its *entry id*
+(`/pokemon/{id}`); but a Form has its own entry id (10001+) while sharing its base's Dex
+number / species id — which is what fetches its description, category, and Evolution line.
 _Avoid_: id, index
 
 **Type**:
@@ -36,8 +39,10 @@ _Avoid_: kind, breed
 
 **Form**:
 An alternate version of a Pokémon (Mega, regional, or other variant) that PokeAPI lists
-as its own entry at id 10001+, sharing its base Pokémon's Dex number. There are 326 such
-entries beyond the 1025 base Pokémon (1351 entries in total).
+as its own **entry** at id 10001+, sharing its base Pokémon's Dex number (species id). There
+are 326 such entries beyond the 1025 base Pokémon (1351 entries in total). A Form **displays
+its own entry id** as its number, but its description, category, and Evolution come from the
+shared base species.
 _Avoid_: variant, variation, alternate
 
 **Evolution line**:

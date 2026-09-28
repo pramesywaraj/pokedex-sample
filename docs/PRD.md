@@ -32,8 +32,8 @@ and **installable iOS/Android** apps via Capacitor ([ADR 0002](./adr/0002-ionic-
   case below maps to checkable acceptance criteria.
 
 **Non-goals (v1)** — see §9 for the full list with rationale: accounts / cross-device sync,
-multi-type filtering, the moves list, persistent offline caching, search autocomplete, and
-end-to-end tests.
+multi-type filtering, the moves list, **true offline** (caching images for a no-connection
+experience — the *data* cache **is** persistent in v1), search autocomplete, and end-to-end tests.
 
 ## 3. Users
 
@@ -46,8 +46,10 @@ Favourites live only on their own device.
 - **No backend:** Favourites persist on-device via Ionic Storage; they do **not** sync
   across devices. This is a deliberate consequence of being frontend-only, stated so a
   reviewer sees it as a trade-off, not a bug.
-- **Network required in v1:** with only in-memory caching, the app needs a connection;
-  no-network surfaces a friendly error state (true offline is a stretch — §9).
+- **Network required in v1:** the persistent cache gives instant **warm starts** (previously
+  fetched data survives reopen), but the app still needs a connection for anything not yet cached
+  and for **images** (loaded from the CDN, not cached) — so no-network surfaces a friendly error
+  state. **True offline** (caching images too) is a stretch — §9.
 - **Data set:** **1351 entries** total — `/pokemon` count 1351 = 1025 base Pokémon
   (Dex numbers 1–1025) + 326 **Forms** (ids 10001+). Forms are included in browse, search,
   and filter; they display their own id and a title-cased, de-hyphenated name.
@@ -228,12 +230,15 @@ number, name, and Type(s).
     the filter where possible). No synchronous per-card fetch ever blocks scrolling.
 - **NFR-2 Caching & prefetch:** the full name index ("phone book") is loaded **once at
   startup** via **count-then-fetch** (no hardcoded limit) and cached; details and Type sets are
-  cached too, all behind a **single async cache interface**
-  ([ADR 0003](./adr/0003-async-cache-seam.md)); repeat opens/filters do not refetch. When viewing a detail opened from the Browse feed, the
-  **±1 neighbours are prefetched** (full bundle) so swipe feels instant; obsolete fetches from
-  rapid swiping are cancelled/debounced. A failed request is **auto-retried ~2× with short
-  backoff** (healing most blips and stray 429s) before surfacing the error state. Respects
-  PokeAPI fair-use.
+  cached too, all behind a **single async cache interface** backed by **persistent Ionic Storage
+  from v1** ([ADR 0003](./adr/0003-async-cache-seam.md)) — so repeat opens/filters do not refetch
+  **and cached data survives app reopen** (a warm start; this is *not* offline — images still
+  need a connection). Requests are **coalesced** (single-flight) so a thing is fetched at most
+  once. When viewing a detail opened from the Browse feed, the **±1 neighbours are prefetched**
+  (Pokémon + species; evolution stays lazy) so swipe feels instant; obsolete fetches from rapid
+  swiping are cancelled/debounced. A failed request is **auto-retried ~2× with short backoff**
+  (healing most blips and stray 429s) before surfacing the error state — unless already offline,
+  in which case it fails fast to the offline state. Respects PokeAPI fair-use.
 - **NFR-3 States:** every data view has **loading (skeletons)**, **empty**, and **error +
   retry** states — enumerated in the **State Matrix** (§6.1). Includes **offline detection**
   (platform online/offline signal → a clear "You're offline" state that **auto-recovers** when
@@ -277,7 +282,7 @@ and avoid request floods per its fair-use policy.
 
 | # | Item | Why deferred |
 |---|---|---|
-| S1 | Persistent offline cache (Ionic Storage / SQLite) | Additive on the async cache seam; biggest UX win if time allows |
+| S1 | **True offline** — cache **images** too (service worker on web / filesystem on native) + offline expectation-handling | The *data* cache is already persistent in v1 (warm starts); this remaining piece makes browse/detail usable with **no connection**. Additive on the async cache seam |
 | S2 | Search autocomplete dropdown | Matching already works via grid filter; dropdown is polish |
 | S3 | Multi-type filtering (any-of / all-of) | Deferred to keep v1's acceptance criteria clean (one Type at a time). Now a **cheap** future add: the background Type map ([ADR 0006](./adr/0006-background-type-map-for-coloured-browse-cards.md)) already holds every Pokémon's Type(s), so "Water **or** Flying" / "Water **and** Flying" is an in-memory filter with **no extra fetches** — the remaining work is mostly UI (multi-select) and the extra test cases |
 | S4 | Combine search **with** Type filter | Alternative modes suffice for v1 |
