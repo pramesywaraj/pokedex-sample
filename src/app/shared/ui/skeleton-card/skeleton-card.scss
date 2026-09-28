@@ -1,0 +1,40 @@
+:host {
+  display: block;
+}
+
+.skeleton-card {
+  position: relative;
+  aspect-ratio: 150 / 140;
+  border-radius: var(--pkx-radius-card);
+  background: var(--pkx-surface);
+  box-shadow: var(--pkx-shadow-soft);
+  overflow: hidden;
+}
+
+.num {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 28px;
+  height: 10px;
+  border-radius: 5px;
+}
+
+.art {
+  position: absolute;
+  top: 10%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 42%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+}
+
+.name {
+  position: absolute;
+  left: 14px;
+  bottom: 14px;
+  width: 58%;
+  height: 12px;
+  border-radius: 6px;
+}

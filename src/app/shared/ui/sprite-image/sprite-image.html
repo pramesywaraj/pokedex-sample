@@ -1,0 +1,7 @@
+@if (failed()) {
+  <div class="placeholder" role="img" [attr.aria-label]="alt()">
+    <span aria-hidden="true">?</span>
+  </div>
+} @else {
+  <img [src]="src()" [alt]="alt()" loading="lazy" (error)="onError()" />
+}

@@ -1,0 +1,51 @@
+:host {
+  display: block;
+}
+
+.card {
+  position: relative;
+  aspect-ratio: 150 / 140;
+  border-radius: var(--pkx-radius-card);
+  background-color: var(--card-fill, var(--pkx-surface));
+  background-image: url('../../../../assets/pokeball-transparent-bg.svg');
+  background-repeat: no-repeat;
+  background-position: bottom 5px right 5px;
+  background-size: 80px auto;
+  color: var(--card-on, var(--pkx-ink));
+  box-shadow: var(--pkx-shadow-soft);
+  overflow: hidden;
+}
+
+.number {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  font-size: 11px;
+  font-weight: var(--pkx-text-number-weight);
+  opacity: 0.7;
+  z-index: 2;
+}
+
+.art {
+  position: absolute;
+  top: 5%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 64%;
+  aspect-ratio: 1;
+  z-index: 1;
+}
+
+app-sprite-image {
+  width: 100%;
+  height: 100%;
+}
+
+.name {
+  position: absolute;
+  left: 14px;
+  bottom: 12px;
+  font-size: var(--pkx-text-heading-size);
+  font-weight: var(--pkx-text-heading-weight);
+  z-index: 2;
+}

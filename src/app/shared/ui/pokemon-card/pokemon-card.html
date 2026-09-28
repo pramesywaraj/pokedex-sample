@@ -1,0 +1,7 @@
+<div class="card" [style.--card-fill]="fillVar()" [style.--card-on]="onVar()">
+  <span class="number">{{ numberLabel() }}</span>
+  <div class="art">
+    <app-sprite-image [src]="artworkUrl()" [alt]="name() + ' artwork'" />
+  </div>
+  <span class="name">{{ name() }}</span>
+</div>
