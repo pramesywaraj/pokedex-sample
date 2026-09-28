@@ -3,7 +3,7 @@ import { IonButton } from '@ionic/angular';
 
 /**
  * A full-view error message with a Retry action, used wherever a fetch fails with
- * something a retry could fix. Dumb: message in, retry out.
+ * something a retry could fix. A dumb primitive, message in and retry out.
  */
 @Component({
   selector: 'app-error-state',

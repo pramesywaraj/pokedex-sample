@@ -59,8 +59,8 @@
   --pkx-text-caption-weight: 400;
 }
 
-// Light-only: pin the app to light regardless of the OS colour-scheme, and set
-// Ionic's surface/text roles to the brand light values unconditionally.
+// Light-only. Pin the app to light regardless of the OS colour scheme, and set
+// Ionic's surface and text roles to the brand light values.
 :root {
   color-scheme: light;
   --ion-background-color: #ffffff;

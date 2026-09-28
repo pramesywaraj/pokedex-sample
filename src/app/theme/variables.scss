@@ -6,11 +6,11 @@
 @use 'type-colours'; // the 18 Type colours as CSS variables
 @use 'chrome'; // branded toolbar title + bottom tab bar
 
-// The app is light-only: no Ionic dark palette is imported, and the OS dark
-// preference is not honoured (see index.html `color-scheme` + _tokens.scss).
+// The app is light-only. No Ionic dark palette is imported, and the OS dark
+// preference is not honoured.
 
-// Wire Ionic's primary role to the brand accent. The base hue has one home in
-// `--pkx-accent` (_tokens.scss).
+// Wire Ionic's primary role to the brand accent. The base hue lives in
+// --pkx-accent.
 :root {
   --ion-color-primary: var(--pkx-accent);
   --ion-color-primary-rgb: 220, 10, 45;
