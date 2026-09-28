@@ -1,7 +1,14 @@
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
-import { ApplicationConfig, provideBrowserGlobalErrorListeners } from '@angular/core';
+import {
+  ApplicationConfig,
+  inject,
+  provideAppInitializer,
+  provideBrowserGlobalErrorListeners,
+} from '@angular/core';
 import { provideRouter } from '@angular/router';
 import { provideIonicAngular } from '@ionic/angular';
+import { CACHE, applyCacheVersion } from './data/cache/cache';
+import { IonicStorageCache } from './data/cache/ionic-storage.cache';
 import { errorNormaliseInterceptor } from './core/interceptors/error-normalise.interceptor';
 import { routes } from './app.routes';
 
@@ -11,5 +18,7 @@ export const appConfig: ApplicationConfig = {
     provideIonicAngular({}),
     provideRouter(routes),
     provideHttpClient(withInterceptors([errorNormaliseInterceptor])),
+    { provide: CACHE, useExisting: IonicStorageCache },
+    provideAppInitializer(() => applyCacheVersion(inject(CACHE))),
   ],
 };
