@@ -3,6 +3,8 @@ import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { PokemonListDto } from '../dto/pokemon-list.dto';
+import { PokemonSpeciesDto } from '../dto/pokemon-species.dto';
+import { PokemonDto } from '../dto/pokemon.dto';
 
 export const BROWSE_PAGE_SIZE = 20;
 
@@ -24,5 +26,15 @@ export class PokeApiClient {
   getPage(next: string | null): Observable<PokemonListDto> {
     const url = next ?? `${this.baseUrl}/pokemon?offset=0&limit=${BROWSE_PAGE_SIZE}`;
     return this.http.get<PokemonListDto>(url);
+  }
+
+  /** Fetches one `/pokemon/{id}` record by entry id. */
+  getPokemon(id: number): Observable<PokemonDto> {
+    return this.http.get<PokemonDto>(`${this.baseUrl}/pokemon/${id}`);
+  }
+
+  /** Fetches one `/pokemon-species/{speciesId}` record by species id (the Dex number). */
+  getSpecies(speciesId: number): Observable<PokemonSpeciesDto> {
+    return this.http.get<PokemonSpeciesDto>(`${this.baseUrl}/pokemon-species/${speciesId}`);
   }
 }
