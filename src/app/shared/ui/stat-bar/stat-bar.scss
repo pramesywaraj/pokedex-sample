@@ -1,0 +1,51 @@
+:host {
+  display: grid;
+  grid-template-columns: 72px 32px 1fr;
+  align-items: center;
+  gap: var(--pkx-space-12);
+}
+
+.label {
+  color: var(--stat-label-color, var(--pkx-ink));
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.value {
+  color: var(--pkx-ink);
+  font-size: 15px;
+  font-weight: 700;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.track {
+  height: 8px;
+  border-radius: var(--pkx-radius-pill);
+  background: var(--pkx-surface);
+  overflow: hidden;
+}
+
+.fill {
+  height: 100%;
+  border-radius: var(--pkx-radius-pill);
+  background: var(--pkx-stat);
+  // Grow the fill in from the left when the bar first mounts (tab opens).
+  transform-origin: left center;
+  animation: stat-grow var(--pkx-duration-slow) var(--pkx-ease) both;
+}
+
+@keyframes stat-grow {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fill {
+    animation: none;
+  }
+}

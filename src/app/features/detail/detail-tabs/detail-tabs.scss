@@ -1,0 +1,32 @@
+:host {
+  display: block;
+}
+
+.tabs {
+  display: flex;
+  gap: var(--pkx-space-8);
+  padding: 0 var(--pkx-space-8);
+  height: 50px;
+  align-items: center;
+  background: var(--pkx-bg);
+  border-radius: var(--pkx-radius-card);
+  box-shadow: var(--pkx-shadow-soft);
+}
+
+.tab {
+  flex: 1;
+  margin: 0;
+  padding: var(--pkx-space-8) 0;
+  border: 0;
+  background: transparent;
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--pkx-disabled);
+  cursor: pointer;
+}
+
+.tab.active {
+  font-weight: 700;
+  color: var(--active, var(--pkx-accent));
+  border-bottom: 2px solid var(--active, var(--pkx-accent));
+}

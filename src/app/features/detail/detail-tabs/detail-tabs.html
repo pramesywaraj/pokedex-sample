@@ -1,0 +1,14 @@
+<nav class="tabs" role="tablist" aria-label="Detail sections">
+  @for (tab of tabs; track tab.key) {
+    <button
+      type="button"
+      role="tab"
+      class="tab"
+      [class.active]="tab.key === active()"
+      [attr.aria-selected]="tab.key === active()"
+      (click)="select(tab.key)"
+    >
+      {{ tab.label }}
+    </button>
+  }
+</nav>

@@ -1,0 +1,31 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  gap: var(--pkx-space-16);
+  // Stat labels take the active Type colour set on the detail panel.
+  --stat-label-color: var(--active, var(--pkx-ink));
+}
+
+.total {
+  display: grid;
+  grid-template-columns: 72px 32px 1fr;
+  align-items: center;
+  gap: var(--pkx-space-12);
+  margin-top: var(--pkx-space-4);
+  padding-top: var(--pkx-space-16);
+  border-top: 1px solid var(--pkx-border);
+}
+
+.label {
+  color: var(--stat-label-color, var(--pkx-ink));
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.value {
+  color: var(--pkx-ink);
+  font-size: 15px;
+  font-weight: 700;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}

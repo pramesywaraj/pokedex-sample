@@ -1,0 +1,8 @@
+@for (row of rows(); track row.label) {
+  <app-stat-bar [label]="row.label" [value]="row.value" />
+}
+
+<div class="total">
+  <span class="label">Total</span>
+  <span class="value">{{ total() }}</span>
+</div>
