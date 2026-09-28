@@ -46,7 +46,21 @@ versions pinned at scaffold.)*
 - **Folder layout** — the three floors map to `src/app/{domain,data,application,features,shared/ui,
   core,theme}`; see [ARCHITECTURE → Project structure](docs/ARCHITECTURE.md#1a-project-structure).
   Layering is lint-enforced (`eslint-plugin-boundaries`).
-- **Commands** — _TBD, filled in at scaffold (ticket 1): build · serve · test · lint._
+- **Node** — 22 (`.nvmrc` pins 22.23.3; Angular 22 requires `^22.22.3`). Run `nvm use` first.
+- **Commands**
+
+  | Command | What it does |
+  |---|---|
+  | `npm start` | dev server on :4200 (`ng serve`) |
+  | `npm run build` | production build → `dist/pokedex/browser` |
+  | `npm test` | unit tests once, Vitest (`npm run test:watch` to watch) |
+  | `npm run lint` | ESLint — includes the layering check |
+  | `npm run format` | Prettier write (`format:check` to verify) |
+
+  Capacitor wraps the same web build (`npx cap sync`); no native platform is added yet.
+
+  *On macOS, `ng serve` can die with `EMFILE` because `kern.maxfilesperproc` (10240) is below what
+  the file watcher wants. Use `npm start -- --poll 3000` if you hit it.*
 
 ## House rules — how we write code
 
