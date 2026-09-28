@@ -15,13 +15,14 @@
 
 | Concern | Choice | Why |
 |---|---|---|
-| UI / cross-platform | **Angular + Ionic + Capacitor** — one codebase → web + installable iOS/Android | [ADR 0002](./adr/0002-ionic-capacitor.md) |
+| UI / cross-platform | **Angular 22 + Ionic 9 + Capacitor 8** — one codebase → web + installable iOS/Android; standalone + zoneless | [ADR 0002](./adr/0002-ionic-capacitor.md) |
 | State | **Angular signals** (RxJS for HTTP, search debounce, request cancellation) | [ADR 0005](./adr/0005-signals-over-ngrx.md) |
 | Persistence | **Ionic Storage** (IndexedDB; optional native SQLite later) — backs the data cache *and* Favourites (separate stores) | [ADR 0003](./adr/0003-async-cache-seam.md) |
 | Data source | **PokeAPI** (`/api/v2`) — no backend of our own | [PRD §8](./PRD.md) |
-| Tests | **Jest** — unit + component; E2E deferred | §9 |
+| Tests | **Vitest** (Angular's built-in default) — unit + component; E2E deferred | §9, [ADR 0009](./adr/0009-vitest-over-jest.md) |
 
-*Exact package versions are pinned at scaffold time.*
+*Angular 22 · Ionic 9 · Capacitor 8 · TypeScript 6.0 · Node 22 LTS; standalone components, zoneless.
+Exact patch versions are pinned at scaffold time.*
 
 ## 1. Architectural style — three floors
 
@@ -43,6 +44,33 @@ Dependency rule: **presentation → application → data**. Presentation never i
 client or `HttpClient`; data never imports a component. Swapping a data-layer piece — the
 cache's backing store (test fake ↔ Ionic Storage ↔ native SQLite), or the API client — leaves
 the upper floors untouched ([ADR 0003](./adr/0003-async-cache-seam.md)).
+
+### 1a. Project structure
+
+The three floors map to folders under `src/app/` (dependency arrows point **down**; the last three
+are cross-cutting, not layers). The `presentation → application → data` rule is **lint-enforced**
+via `eslint-plugin-boundaries` (scaffold ticket), so a stray import fails CI rather than only review.
+
+```
+src/app/
+  domain/        # shared vocabulary — models, AppError, PokemonTypeName (no framework deps)
+  data/          # DATA floor
+    api/         #   PokeApiClient — the only HttpClient / PokeAPI touch point
+    dto/         #   raw PokeAPI response shapes
+    mappers/     #   pure DTO → domain functions
+    cache/       #   Cache seam + Ionic Storage impl (single-flight, versioned)
+    stores/      #   FavouritesStore — separate store from the cache
+    repository/  #   PokemonRepository — fetch-or-reuse boundary
+  application/   # APPLICATION floor — signal services: index, feed, favourites, network, detail (+ sources/)
+  features/      # PRESENTATION floor — browse/ detail/ favourites/ (pages + feature-local components)
+  shared/ui/     # reusable primitives — PokemonCard, SpriteImage, TypeBadge, StatBar, Skeleton*, PokéBall, StateScreen
+  core/          # app-wide singletons — interceptors (retry-backoff, error-normalise), DI tokens
+  theme/         # design tokens + the PokemonTypeName → colour map
+```
+
+`domain/` sits beneath every floor as the shared language (all layers may import it). `PokemonCard`
+lives in `shared/ui/` — a dumb primitive reused by Browse and Favourites ([ADR 0007](./adr/0007-name-index-separate-from-type-map.md)),
+not owned by a feature.
 
 ## 2. Domain models
 
@@ -305,7 +333,7 @@ export const routes: Routes = [
 - **Theming** — Ionic CSS variables; a `PokemonTypeName → colour` map for `TypeBadge`;
   light/dark via Ionic defaults.
 
-## 9. Testing strategy (Jest, per-layer)
+## 9. Testing strategy (Vitest, per-layer)
 
 | Layer | What we test | How |
 |---|---|---|

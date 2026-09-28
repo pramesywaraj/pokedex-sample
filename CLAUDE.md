@@ -8,15 +8,16 @@ don't break these"** note — it *points*, it doesn't repeat.
 - [`docs/PRD.md`](docs/PRD.md) — what/why: use cases, acceptance criteria, the State Matrix
 - [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) — the technical *how*: tech stack, layers, domain models, caching strategy
 - [`CONTEXT.md`](CONTEXT.md) — glossary / ubiquitous language (**use these exact words**)
-- [`docs/adr/`](docs/adr/) — point decisions with rationale (ADR 0001–0008)
+- [`docs/adr/`](docs/adr/) — point decisions with rationale (ADR 0001–0009)
 - [`docs/DESIGN.md`](docs/DESIGN.md) — visual & interaction design
 
 ## Tech stack
 
 Angular + Ionic + Capacitor · state via **Angular signals** (RxJS for HTTP/debounce/cancellation) ·
-persistence via **Ionic Storage (IndexedDB)** · tests in **Jest**. See
-[ARCHITECTURE → Tech stack](docs/ARCHITECTURE.md#tech-stack) for the list and ADR 0002/0003/0005
-for the why. *(Exact versions pinned at scaffold.)*
+persistence via **Ionic Storage (IndexedDB)** · tests in **Vitest**. See
+[ARCHITECTURE → Tech stack](docs/ARCHITECTURE.md#tech-stack) for the list and ADR 0002/0003/0005/0009
+for the why. *(Angular 22 · Ionic 9 · Capacitor 8 · Node 22 LTS; standalone + zoneless; exact patch
+versions pinned at scaffold.)*
 
 ## Invariants — don't break these
 
@@ -42,4 +43,7 @@ for the why. *(Exact versions pinned at scaffold.)*
 
 ## Commands / structure
 
-_TBD — filled in right after scaffolding (build · serve · test · lint; folder layout)._
+- **Folder layout** — the three floors map to `src/app/{domain,data,application,features,shared/ui,
+  core,theme}`; see [ARCHITECTURE → Project structure](docs/ARCHITECTURE.md#1a-project-structure).
+  Layering is lint-enforced (`eslint-plugin-boundaries`).
+- **Commands** — _TBD, filled in at scaffold (ticket 1): build · serve · test · lint._
