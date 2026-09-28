@@ -8,7 +8,7 @@ addIcons({ apps, heart });
 
 /**
  * The app's two-tab shell (Browse · Favourites). Hosts the bottom tab bar and
- * the inner outlet each tab's page renders into (ARCHITECTURE §7).
+ * the inner outlet each tab's page renders into.
  */
 @Component({
   selector: 'app-tabs',

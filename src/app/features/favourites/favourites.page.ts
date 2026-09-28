@@ -3,7 +3,7 @@ import { IonContent, IonHeader, IonTitle, IonToolbar } from '@ionic/angular';
 
 /**
  * Favourites tab. A walking-skeleton placeholder for now — saving and viewing
- * favourites lands in ticket 8.
+ * favourites lands later.
  */
 @Component({
   selector: 'app-favourites',
