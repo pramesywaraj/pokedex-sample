@@ -1,0 +1,13 @@
+# Build output & caches
+dist/
+node_modules/
+.angular/
+coverage/
+
+# Lockfile
+package-lock.json
+
+# Markdown docs are hand-wrapped (PRD, ARCHITECTURE, ADRs, tickets) — leave the
+# authored line breaks alone.
+*.md
+docs/
