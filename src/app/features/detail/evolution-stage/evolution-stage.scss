@@ -1,0 +1,59 @@
+:host {
+  display: block;
+}
+
+.stage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--pkx-space-4);
+  width: 96px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+.stage:disabled {
+  cursor: default;
+}
+
+.art-circle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 88px;
+  height: 88px;
+  padding: var(--pkx-space-8);
+  border-radius: 50%;
+  background: var(--pkx-surface);
+  // A transparent ring by default so the current stage's accent ring adds no shift.
+  box-shadow: 0 0 0 2px transparent;
+}
+
+.stage.current .art-circle {
+  box-shadow: 0 0 0 2px var(--pkx-accent);
+}
+
+.art-circle app-sprite-image {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.name {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--pkx-ink);
+}
+
+.stage.current .name {
+  color: var(--pkx-accent);
+}
+
+.number {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--pkx-muted);
+}

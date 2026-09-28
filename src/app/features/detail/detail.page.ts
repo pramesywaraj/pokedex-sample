@@ -1,5 +1,5 @@
 import { Location } from '@angular/common';
-import { Component, OnInit, computed, inject } from '@angular/core';
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { IonContent } from '@ionic/angular';
 import { DetailService } from '../../application/detail.service';
@@ -8,7 +8,10 @@ import { PokeballBackdrop } from '../../shared/ui/pokeball-backdrop/pokeball-bac
 import { SkeletonDetail } from '../../shared/ui/skeleton-detail/skeleton-detail';
 import { AboutTab } from './about-tab/about-tab';
 import { DetailHeader } from './detail-header/detail-header';
+import { DetailTab, DetailTabs } from './detail-tabs/detail-tabs';
+import { EvolutionTab } from './evolution-tab/evolution-tab';
 import { NotFoundDetail } from './not-found-detail/not-found-detail';
+import { StatsTab } from './stats-tab/stats-tab';
 
 /**
  * A single pushed detail screen for `pokemon/:id`. It owns its own DetailService
@@ -23,7 +26,10 @@ import { NotFoundDetail } from './not-found-detail/not-found-detail';
     SkeletonDetail,
     PokeballBackdrop,
     DetailHeader,
+    DetailTabs,
     AboutTab,
+    StatsTab,
+    EvolutionTab,
     NotFoundDetail,
     ErrorState,
   ],
@@ -45,9 +51,25 @@ export class DetailPage implements OnInit {
     return type ? `var(--pkx-type-${type})` : 'var(--pkx-surface)';
   });
 
+  /** The open tab; the view opens on About. */
+  protected readonly activeTab = signal<DetailTab>('about');
+
   ngOnInit(): void {
     const id = Number(this.route.snapshot.paramMap.get('id'));
     void this.detail.load(id);
+  }
+
+  /** Switches the open tab, lazily loading the evolution line the first time it opens. */
+  protected selectTab(tab: DetailTab): void {
+    this.activeTab.set(tab);
+    if (tab === 'evolution') {
+      void this.detail.loadEvolution();
+    }
+  }
+
+  /** Pushes a tapped evolution stage's detail (Back returns to this one). */
+  protected openStage(speciesId: number): Promise<boolean> {
+    return this.router.navigate(['/pokemon', speciesId]);
   }
 
   /** Steps back to where the Trainer came from, or Browse on a cold deep-link. */

@@ -1,0 +1,13 @@
+<button
+  type="button"
+  class="stage"
+  [class.current]="current()"
+  [disabled]="current()"
+  (click)="pick.emit(stage().speciesId)"
+>
+  <span class="art-circle">
+    <app-sprite-image [src]="stage().artworkUrl" [alt]="stage().name + ' artwork'" />
+  </span>
+  <span class="name">{{ stage().name }}</span>
+  <span class="number">{{ numberLabel() }}</span>
+</button>

@@ -1,0 +1,132 @@
+:host {
+  display: block;
+}
+
+// One step per row so branches wrap to new rows and never scroll sideways.
+.chain {
+  display: flex;
+  flex-direction: column;
+  gap: var(--pkx-space-20);
+}
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: var(--pkx-space-12);
+}
+
+.arrow {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--pkx-space-4);
+  min-width: 48px;
+  // Keep the arrow aligned with the artwork, above the stage's name/number.
+  align-self: flex-start;
+  margin-top: 28px;
+  color: var(--pkx-subtle);
+}
+
+.arrow .glyph {
+  font-size: 20px;
+  line-height: 1;
+}
+
+.arrow .method {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--pkx-muted);
+  white-space: nowrap;
+}
+
+.dne {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--pkx-space-8);
+  padding: var(--pkx-space-24) 0;
+  text-align: center;
+}
+
+.lone-circle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 132px;
+  height: 132px;
+  margin-bottom: var(--pkx-space-8);
+  padding: var(--pkx-space-16);
+  border-radius: 50%;
+  background: var(--pkx-surface);
+}
+
+.lone-circle app-sprite-image {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.dne-title {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--pkx-ink);
+}
+
+.dne-sub {
+  margin: 0;
+  font-size: var(--pkx-text-body-size);
+  color: var(--pkx-muted);
+}
+
+.tab-error {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--pkx-space-8);
+  padding: var(--pkx-space-24) 0;
+  color: var(--pkx-muted);
+  font-size: var(--pkx-text-body-size);
+}
+
+.loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--pkx-space-8);
+  padding: var(--pkx-space-40) 0;
+}
+
+.loading .dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--pkx-surface);
+  animation: pulse 1s ease-in-out infinite;
+}
+
+.loading .dot:nth-child(2) {
+  animation-delay: 0.15s;
+}
+
+.loading .dot:nth-child(3) {
+  animation-delay: 0.3s;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 0.4;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .loading .dot {
+    animation: none;
+  }
+}

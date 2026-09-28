@@ -21,19 +21,31 @@
           (back)="back()"
         />
 
-        <nav class="tabs" aria-label="Detail sections">
-          <span class="tab active" aria-current="true">About</span>
-          <span class="tab" aria-disabled="true">Base Stats</span>
-          <span class="tab" aria-disabled="true">Evolution</span>
-        </nav>
+        <app-detail-tabs class="tabs" [active]="activeTab()" (tabChange)="selectTab($event)" />
 
         <section class="sheet">
-          <app-about-tab
-            [pokemon]="detail.pokemon()!"
-            [description]="detail.description()"
-            [descriptionStatus]="detail.descriptionStatus()"
-            (retryDescription)="detail.retryDescription()"
-          />
+          @switch (activeTab()) {
+            @case ('stats') {
+              <app-stats-tab [stats]="detail.pokemon()!.stats" />
+            }
+            @case ('evolution') {
+              <app-evolution-tab
+                [pokemon]="detail.pokemon()!"
+                [status]="detail.evolutionStatus()"
+                [chain]="detail.evolution()"
+                (retry)="detail.retryEvolution()"
+                (selectStage)="openStage($event)"
+              />
+            }
+            @default {
+              <app-about-tab
+                [pokemon]="detail.pokemon()!"
+                [description]="detail.description()"
+                [descriptionStatus]="detail.descriptionStatus()"
+                (retryDescription)="detail.retryDescription()"
+              />
+            }
+          }
         </section>
       </div>
     }

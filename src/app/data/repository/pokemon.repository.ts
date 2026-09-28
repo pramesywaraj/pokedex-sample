@@ -1,9 +1,11 @@
 import { Injectable, inject } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
+import { EvolutionChain } from '../../domain/evolution';
 import { Pokemon } from '../../domain/pokemon';
 import { Species } from '../../domain/species';
 import { PokeApiClient } from '../api/poke-api.client';
 import { CACHE } from '../cache/cache';
+import { toEvolutionChain } from '../mappers/evolution-chain.mapper';
 import { toPokemon } from '../mappers/pokemon.mapper';
 import { toSpecies } from '../mappers/pokemon-species.mapper';
 
@@ -11,6 +13,8 @@ import { toSpecies } from '../mappers/pokemon-species.mapper';
 export const pokemonKey = (id: number): string => `pokemon:${id}`;
 /** Cache key for a species record, by species id (a Form and its base share it). */
 export const speciesKey = (speciesId: number): string => `species:${speciesId}`;
+/** Cache key for an evolution chain, by chain id (a whole line shares it). */
+export const evolutionKey = (chainId: number): string => `evolution:${chainId}`;
 
 /**
  * The fetch-or-reuse boundary the detail side reads through. Every resource is
@@ -36,6 +40,13 @@ export class PokemonRepository {
   getSpecies(speciesId: number): Promise<Species> {
     return this.read(speciesKey(speciesId), async () =>
       toSpecies(await firstValueFrom(this.client.getSpecies(speciesId))),
+    );
+  }
+
+  /** Reads an evolution chain by chain id, keyed `evolution:{chainId}`. */
+  getEvolution(chainId: number): Promise<EvolutionChain> {
+    return this.read(evolutionKey(chainId), async () =>
+      toEvolutionChain(await firstValueFrom(this.client.getEvolution(chainId))),
     );
   }
 

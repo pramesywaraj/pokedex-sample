@@ -1,5 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { AppError } from '../domain/app-error';
+import { EvolutionChain } from '../domain/evolution';
 import { Pokemon } from '../domain/pokemon';
 import { Species } from '../domain/species';
 import { PokemonRepository } from '../data/repository/pokemon.repository';
@@ -31,12 +32,16 @@ function pokemon(id: number, speciesId = id): Pokemon {
 
 const species: Species = { category: 'Seed', description: 'A seed sleeps.', evolutionChainId: 1 };
 
-/** A scripted repository: hands back or rejects the pokemon/species reads on cue. */
+const evolution: EvolutionChain = { chainId: 1, steps: [] };
+
+/** A scripted repository: hands back or rejects the pokemon/species/evolution reads on cue. */
 class FakeRepository {
   pokemonOutcome: Pokemon | Error = pokemon(1);
   speciesOutcome: Species | Error = species;
+  evolutionOutcome: EvolutionChain | Error = evolution;
   pokemonCalls = 0;
   speciesCalls = 0;
+  evolutionCalls = 0;
 
   getPokemon(): Promise<Pokemon> {
     this.pokemonCalls++;
@@ -50,6 +55,13 @@ class FakeRepository {
     return this.speciesOutcome instanceof Error
       ? Promise.reject(this.speciesOutcome)
       : Promise.resolve(this.speciesOutcome);
+  }
+
+  getEvolution(): Promise<EvolutionChain> {
+    this.evolutionCalls++;
+    return this.evolutionOutcome instanceof Error
+      ? Promise.reject(this.evolutionOutcome)
+      : Promise.resolve(this.evolutionOutcome);
   }
 }
 
@@ -121,5 +133,30 @@ describe('DetailService', () => {
     await detail.retryDescription();
     expect(detail.descriptionStatus()).toBe('ready');
     expect(detail.description()).toBe('A seed sleeps.');
+  });
+
+  it('leaves evolution idle until the tab asks for it', async () => {
+    await detail.load(1);
+    expect(detail.evolutionStatus()).toBe('idle');
+    expect(repo.evolutionCalls).toBe(0);
+  });
+
+  it('lazily loads the evolution line by its chain id, once', async () => {
+    await detail.load(1);
+    await detail.loadEvolution();
+    await detail.loadEvolution();
+    expect(detail.evolutionStatus()).toBe('ready');
+    expect(detail.evolution()?.chainId).toBe(1);
+    expect(repo.evolutionCalls).toBe(1);
+  });
+
+  it('flags a per-tab error when evolution fails, and recovers on retry', async () => {
+    await detail.load(1);
+    repo.evolutionOutcome = new AppError('transient');
+    await detail.loadEvolution();
+    expect(detail.evolutionStatus()).toBe('error');
+    repo.evolutionOutcome = evolution;
+    await detail.retryEvolution();
+    expect(detail.evolutionStatus()).toBe('ready');
   });
 });

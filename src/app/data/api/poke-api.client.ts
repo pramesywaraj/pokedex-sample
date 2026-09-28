@@ -2,6 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
+import { EvolutionChainDto } from '../dto/evolution-chain.dto';
 import { PokemonListDto } from '../dto/pokemon-list.dto';
 import { PokemonSpeciesDto } from '../dto/pokemon-species.dto';
 import { PokemonDto } from '../dto/pokemon.dto';
@@ -36,5 +37,10 @@ export class PokeApiClient {
   /** Fetches one `/pokemon-species/{speciesId}` record by species id (the Dex number). */
   getSpecies(speciesId: number): Observable<PokemonSpeciesDto> {
     return this.http.get<PokemonSpeciesDto>(`${this.baseUrl}/pokemon-species/${speciesId}`);
+  }
+
+  /** Fetches one `/evolution-chain/{chainId}` record (a whole line shares one). */
+  getEvolution(chainId: number): Observable<EvolutionChainDto> {
+    return this.http.get<EvolutionChainDto>(`${this.baseUrl}/evolution-chain/${chainId}`);
   }
 }

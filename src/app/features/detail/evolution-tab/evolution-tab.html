@@ -1,0 +1,49 @@
+@switch (status()) {
+  @case ('ready') {
+    @if (steps().length === 0) {
+      <div class="dne">
+        <span class="lone-circle">
+          <app-sprite-image [src]="pokemon().artworkUrl" [alt]="pokemon().name + ' artwork'" />
+        </span>
+        <p class="dne-title">This Pokémon does not evolve.</p>
+        <p class="dne-sub">{{ pokemon().name }} stands alone — it has no evolutions.</p>
+      </div>
+    } @else {
+      <div class="chain">
+        @for (step of steps(); track step.to.speciesId) {
+          <div class="row">
+            <app-evolution-stage
+              [stage]="step.from"
+              [current]="isCurrent(step.from)"
+              (pick)="selectStage.emit($event)"
+            />
+            <div class="arrow">
+              <span class="glyph" aria-hidden="true">→</span>
+              @if (step.method) {
+                <span class="method">{{ step.method }}</span>
+              }
+            </div>
+            <app-evolution-stage
+              [stage]="step.to"
+              [current]="isCurrent(step.to)"
+              (pick)="selectStage.emit($event)"
+            />
+          </div>
+        }
+      </div>
+    }
+  }
+  @case ('error') {
+    <div class="tab-error">
+      <span>Couldn't load the evolutions.</span>
+      <ion-button fill="clear" size="small" (click)="retry.emit()">Retry</ion-button>
+    </div>
+  }
+  @default {
+    <div class="loading" aria-hidden="true">
+      <span class="dot"></span>
+      <span class="dot"></span>
+      <span class="dot"></span>
+    </div>
+  }
+}

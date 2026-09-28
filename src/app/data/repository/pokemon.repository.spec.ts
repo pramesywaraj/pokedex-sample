@@ -3,9 +3,10 @@ import { Observable, of } from 'rxjs';
 import { PokeApiClient } from '../api/poke-api.client';
 import { CACHE } from '../cache/cache';
 import { InMemoryCache } from '../cache/in-memory.cache';
+import { EvolutionChainDto } from '../dto/evolution-chain.dto';
 import { PokemonDto } from '../dto/pokemon.dto';
 import { PokemonSpeciesDto } from '../dto/pokemon-species.dto';
-import { PokemonRepository, pokemonKey, speciesKey } from './pokemon.repository';
+import { PokemonRepository, evolutionKey, pokemonKey, speciesKey } from './pokemon.repository';
 
 function pokemonDto(id: number, speciesId: number): PokemonDto {
   return {
@@ -31,9 +32,27 @@ function speciesDto(id: number): PokemonSpeciesDto {
   };
 }
 
+function evolutionDto(id: number): EvolutionChainDto {
+  return {
+    id,
+    chain: {
+      species: { name: 'charmander', url: 'https://pokeapi.co/api/v2/pokemon-species/4/' },
+      evolution_details: [],
+      evolves_to: [
+        {
+          species: { name: 'charmeleon', url: 'https://pokeapi.co/api/v2/pokemon-species/5/' },
+          evolution_details: [{ min_level: 16, item: null, trigger: null, min_happiness: null }],
+          evolves_to: [],
+        },
+      ],
+    },
+  };
+}
+
 class FakeClient {
   pokemonCalls = 0;
   speciesCalls = 0;
+  evolutionCalls = 0;
 
   getPokemon(id: number): Observable<PokemonDto> {
     this.pokemonCalls++;
@@ -43,6 +62,11 @@ class FakeClient {
   getSpecies(speciesId: number): Observable<PokemonSpeciesDto> {
     this.speciesCalls++;
     return of(speciesDto(speciesId));
+  }
+
+  getEvolution(chainId: number): Observable<EvolutionChainDto> {
+    this.evolutionCalls++;
+    return of(evolutionDto(chainId));
   }
 }
 
@@ -83,6 +107,14 @@ describe('PokemonRepository', () => {
     expect(species.category).toBe('Flame Pokémon');
     expect(species.evolutionChainId).toBe(2);
     expect(await cache.get(speciesKey(6))).toEqual(species);
+  });
+
+  it('keys the evolution chain by chain id and flattens it', async () => {
+    const chain = await repo.getEvolution(2);
+    expect(chain.chainId).toBe(2);
+    expect(chain.steps.map((s) => s.to.name)).toEqual(['Charmeleon']);
+    expect(client.evolutionCalls).toBe(1);
+    expect(await cache.get(evolutionKey(2))).toEqual(chain);
   });
 
   it('coalesces concurrent misses for the same key into one request', async () => {
