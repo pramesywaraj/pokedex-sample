@@ -4,5 +4,7 @@
  */
 export const environment = {
   pokeApiBaseUrl: 'https://pokeapi.co/api/v2',
-  pokeOfficialArtworkUrl: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork',
+  pokeOfficialArtworkUrl:
+    'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork',
+  pokeSpriteUrl: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon',
 };
