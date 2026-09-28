@@ -6,15 +6,11 @@
 @use 'type-colours'; // the 18 Type colours as CSS variables
 @use 'chrome'; // branded toolbar title + bottom tab bar
 
-/**
- * Ionic Dark Theme — dark mode inherits Ionic's defaults.
- * https://ionicframework.com/docs/theming/dark-mode
- */
-@import '@ionic/angular/css/palettes/dark.system.css';
+// The app is light-only: no Ionic dark palette is imported, and the OS dark
+// preference is not honoured (see index.html `color-scheme` + _tokens.scss).
 
-// Wire Ionic's primary role to the brand accent. Re-asserted after the dark
-// palette so the accent red holds in both light and dark (it is a brand colour,
-// not a theme surface). The base hue has one home in `--pkx-accent` (_tokens.scss).
+// Wire Ionic's primary role to the brand accent. The base hue has one home in
+// `--pkx-accent` (_tokens.scss).
 :root {
   --ion-color-primary: var(--pkx-accent);
   --ion-color-primary-rgb: 220, 10, 45;

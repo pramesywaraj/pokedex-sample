@@ -59,23 +59,12 @@
   --pkx-text-caption-weight: 400;
 }
 
-@media (prefers-color-scheme: light) {
-  :root {
-    --ion-background-color: #ffffff;
-    --ion-background-color-rgb: 255, 255, 255;
-    --ion-text-color: #1d1d2e;
-    --ion-text-color-rgb: 29, 29, 46;
-  }
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --pkx-bg: var(--ion-background-color);
-    --pkx-surface: var(--ion-color-step-100);
-    --pkx-border: var(--ion-color-step-150);
-    --pkx-ink: var(--ion-text-color);
-    --pkx-muted: var(--ion-color-step-600);
-    --pkx-subtle: var(--ion-color-step-500);
-    --pkx-disabled: var(--ion-color-step-450);
-  }
+// Light-only: pin the app to light regardless of the OS colour-scheme, and set
+// Ionic's surface/text roles to the brand light values unconditionally.
+:root {
+  color-scheme: light;
+  --ion-background-color: #ffffff;
+  --ion-background-color-rgb: 255, 255, 255;
+  --ion-text-color: #1d1d2e;
+  --ion-text-color-rgb: 29, 29, 46;
 }
