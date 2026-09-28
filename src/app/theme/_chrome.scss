@@ -1,0 +1,18 @@
+// App chrome — the branded frame around every tabbed screen (DESIGN §6 App chrome).
+// Scoped to the tab shell so the Detail screen's own coloured header (ticket 5) is
+// left untouched.
+
+// Bold red "Pokédex" / "Favourites" toolbar titles.
+ion-tabs ion-title {
+  color: var(--pkx-accent);
+  font-weight: var(--pkx-text-detail-name-weight);
+}
+
+// Full-width bottom tab bar: red top border, red accent for the active item,
+// muted `disabled` grey for the inactive one.
+ion-tab-bar {
+  --background: var(--pkx-bg);
+  --color: var(--pkx-disabled);
+  --color-selected: var(--pkx-accent);
+  --border: 2px solid var(--pkx-accent);
+}

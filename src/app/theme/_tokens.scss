@@ -1,0 +1,81 @@
+// Design tokens
+
+:root {
+  // --- Brand accent -----------------------------------------
+  --pkx-accent: #dc0a2d; // title, search, CTA, active nav, favourite ♥, centre dot
+  --pkx-stat: #f5606b; // stat-bar fill (single red-coral, all bars)
+
+  // --- Neutrals -------------------------------------
+  --pkx-ink: #1d1d2e; // headings, primary text
+  --pkx-muted: #74748c; // secondary text, section labels
+  --pkx-subtle: #9aa0ae; // placeholder text, inactive icons
+  --pkx-bg: #ffffff; // app / sheet background
+  --pkx-surface: #efeff3; // search pill, "All" chip, stat tracks
+  --pkx-border: #ededf2; // hairlines, dividers
+  --pkx-disabled: #b8b8c4; // inactive tab label
+
+  // --- Spacing (4-based scale) --------------------------------
+  --pkx-space-4: 4px;
+  --pkx-space-8: 8px;
+  --pkx-space-12: 12px;
+  --pkx-space-16: 16px;
+  --pkx-space-20: 20px;
+  --pkx-space-24: 24px;
+  --pkx-space-32: 32px;
+  --pkx-space-40: 40px;
+
+  // --- Radius -------------------------------------------------
+  --pkx-radius-card: 16px;
+  --pkx-radius-sheet: 24px; // header / bottom sheet
+  --pkx-radius-badge: 6px;
+  --pkx-radius-button: 22px; // pill button
+  --pkx-radius-pill: 999px; // chip / pill
+
+  // --- Elevation ----------------------------------------------
+  --pkx-shadow-soft: 0 4px 16px rgba(0, 0, 0, 0.08); // neutral surfaces
+  --pkx-shadow-type-rgb: 0, 0, 0;
+  --pkx-shadow-type: 0 8px 16px rgba(var(--pkx-shadow-type-rgb), 0.35);
+
+  // --- Motion -------------------------------------------------
+  --pkx-duration-fast: 120ms;
+  --pkx-duration-base: 200ms;
+  --pkx-duration-slow: 300ms;
+  --pkx-ease: cubic-bezier(0.4, 0, 0.2, 1);
+
+  // --- Typography roles -------------------
+  --pkx-font-family: var(--ion-font-family);
+  --pkx-text-detail-name-size: 28px;
+  --pkx-text-detail-name-weight: 700;
+  --pkx-text-heading-size: 14px;
+  --pkx-text-heading-weight: 600;
+  --pkx-text-number-size: 12px;
+  --pkx-text-number-weight: 700;
+  --pkx-text-label-size: 12px;
+  --pkx-text-label-weight: 600;
+  --pkx-text-body-size: 15px;
+  --pkx-text-body-weight: 400;
+  --pkx-text-body-line: 1.5;
+  --pkx-text-caption-size: 12px;
+  --pkx-text-caption-weight: 400;
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    --ion-background-color: #ffffff;
+    --ion-background-color-rgb: 255, 255, 255;
+    --ion-text-color: #1d1d2e;
+    --ion-text-color-rgb: 29, 29, 46;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --pkx-bg: var(--ion-background-color);
+    --pkx-surface: var(--ion-color-step-100);
+    --pkx-border: var(--ion-color-step-150);
+    --pkx-ink: var(--ion-text-color);
+    --pkx-muted: var(--ion-color-step-600);
+    --pkx-subtle: var(--ion-color-step-500);
+    --pkx-disabled: var(--ion-color-step-450);
+  }
+}
