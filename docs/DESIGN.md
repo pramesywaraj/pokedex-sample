@@ -242,10 +242,11 @@ stage **pushes** that Pokémon's Detail (AC-2.8). Empty state: “This Pokémon 
 (AC-2.9).
 
 ### PokemonNav
-Prev/next on the Detail header: **swipe** (touch), **chevron buttons** at the header edges
-(mouse), **←/→** (keyboard). Disabled at first/last (AC-2.13); loading while the index isn't
+Prev/next on the Detail header: **swipe** (touch), circular translucent-white **‹ / › chevron
+buttons flanking the artwork** (mouse), **←/→** (keyboard). Disabled at first/last (AC-2.13); loading while the index isn't
 ready (AC-2.13b). **Enabled only from the main Browse feed** — disabled from Favourites, an
-active Type filter, or search (AC-2.15).
+active Type filter, or search (AC-2.15) — when disabled the ‹ › are shown **dimmed** (a
+`PokemonNav · states` swatch documents enabled vs disabled).
 
 ### StateScreen
 One template for every messaging state: centred **filled Poké Ball** icon (red centre dot) +
@@ -262,6 +263,36 @@ tab-content lines), matching the real shape, with a shimmer (AC-1.1 / AC-2.5).
 - **Bottom tab bar:** **full-width bar with a red (`accent`) top border**; **Browse** (Poké Ball
   icon) · **Favourites** (♥). Active item `accent` red, inactive `disabled`.
 
+### SplashScreen (app boot · not an Angular component)
+A **brand / boot cover** shown while the app shell starts — **not a data gate**. It gates on
+**nothing**: it hands straight off to the **Browse skeleton** (which owns its own loading), so it
+has **no error / offline / timeout** state — it can't fail, because it isn't waiting on anything.
+Built at **375** and **1280** (`Splash · 375` / `Splash · 1280`).
+
+- **Field** — full-bleed **`accent` red** (`#DC0A2D`): the one place red fills the whole surface.
+  Because red is a **brand** colour (not a theme *surface*), the splash is the **same in light and
+  dark** — no dark variant.
+- **Watermarks** — two faint **Poké Ball** ghosts bleeding off opposite corners — the same
+  boolean-**Subtract** `#F1F1F1`@20% motif as the DetailHeader panel (§6 DetailHeader), reused from
+  that build.
+- **Hero** — a centred **classic red/white Poké Ball** (~128px), built like the app-404 ball (red
+  top, white lower half, `#22222E` band + button), with an **8px `#22222E` outline** so its red top
+  separates cleanly from the red field.
+- **Wordmark** — **"Pokédex"** below the ball (white, 34/700).
+- **Subtitle** — **"Warming up the Pokédex…"** (white @70%, 14/500) — on-brand flavour, *not*
+  "Loading…/Please wait" (it isn't a wait or a gate).
+- **Motion** — **none**. Fully static so **native and web are identical** (the native splash is a
+  static image and can't animate); the only movement is the **exit**.
+- **Wide screens** — the cluster stays **fixed-size, centred**; the red field simply grows around it
+  (matches native letterboxing). **768 is omitted** — visually identical to these two.
+- **Exit** — a ~**600ms** minimum-display floor, then a ~**200ms fade** into the Browse skeleton
+  (prevents a flash on fast/warm loads; the fade is a *transition*, not the spinner we ruled out).
+
+**Delivery — one design, two mechanisms.** *Native:* `@capacitor/splash-screen`
+(`launchShowDuration` + `SplashScreen.hide({ fadeOutDuration })`). *Web* (no native splash): an
+HTML/CSS overlay in `index.html` that CSS-fades before removal — otherwise the browser flashes a
+blank page before Angular boots.
+
 ---
 
 ## 7. Pages flow
@@ -272,8 +303,10 @@ with Browse holding three feed *modes* (browse / type / search). The nav rules c
 
 ```mermaid
 flowchart TD
-  Launch([App launch]) --> Browse
-  DeepLink([Deep-link / refresh / share]) --> DetailCold[Detail cold-open]
+  Launch([App launch]) --> Splash[Splash boot cover]
+  DeepLink([Deep-link / refresh / share]) --> Splash
+  Splash --> Browse
+  Splash --> DetailCold[Detail cold-open]
 
   subgraph Tabs [Bottom tab bar]
     Browse[Browse feed]
@@ -310,6 +343,7 @@ flowchart TD
 
 | From | Action | To | Behaviour | Ref |
 |---|---|---|---|---|
+| Launch / deep-link | cold start | Splash → target | boot cover (~600ms floor + ~200ms fade), then Browse or Detail cold-open | §6, NFR-2 |
 | Launch | open app | Browse | default route; index loads at startup | UC-1, NFR-2 |
 | Browse ↔ Favourites | tap tab | the other tab | state preserved | §7 IA |
 | Browse | pick Type chip | Browse (Type) | grid filtered; search cleared | AC-5.1, AC-5.4 |
@@ -334,8 +368,8 @@ The Figma file's page structure and the order we build it.
 1. **01 · Foundations** — colour tokens (rev-2 pastel palette + red accent), Type swatches
    (each grouped `Swatch ·`/`Token ·`), type scale.
 2. **02 · Components** — every component in §6 (reference-style, named groups).
-3. **03 · Screens** — *all* screen artboards: Browse (375 / 768 / 1280), Detail, Favourites,
-   and the §9 states.
+3. **03 · Screens** — *all* screen artboards: the Splash boot cover (375 / 1280), Browse
+   (375 / 768 / 1280), Detail, Favourites, and the §9 states.
 
 **Build order**
 
@@ -347,7 +381,8 @@ The Figma file's page structure and the order we build it.
 | 4 | Detail happy path (About → Base Stats → Evolution) | UC-2, UC-3 | **built** — mobile 3 tabs + **two-pane About** at tablet 768 & desktop 1280 (centred card) |
 | 5 | Favourites (grid + empty) | UC-4 | **built (grid + "No favourites" empty state)** |
 | 6 | **All states** — skeletons, empties, errors, offline, 404 | §6.1 State Matrix | **built** — Browse loading (skeleton grid) / error / offline / load-more error · Search "no matches" / "unavailable" · Detail 404 / SkeletonDetail / "does not evolve" · Favourites empty / "No [Type] favourites" |
-| 7 | (optional) prototype wiring for a click-through of §7 | flows | pending |
+| 7 | **Splash boot cover** (red-immersive · 375 / 1280) | app startup | **built** — hero Poké Ball + wordmark + "Warming up the Pokédex…"; static; ~600ms + fade exit |
+| 8 | (optional) prototype wiring for a click-through of §7 | flows | pending |
 
 ---
 
@@ -371,6 +406,11 @@ favourited vs not ·
   not-found detail state) — built mobile / tablet / desktop. Centred **`4` · Poké Ball · `4`**
   (the Poké Ball as the “0”, brand red), **"Page not found"**, playful copy ("slipped away into the
   tall grass"), and a **Back to Browse** button. Wired to the router's wildcard route.
+- **App boot (Splash):** a brand / boot cover during startup (§6 SplashScreen) — full-bleed red,
+  Poké Ball watermarks, centred hero ball + **"Pokédex"** + **"Warming up the Pokédex…"**. **No
+  failure state** — it gates on nothing and hands to the Browse skeleton. Native via
+  `@capacitor/splash-screen`, web via an `index.html` overlay; ~600ms floor + ~200ms fade exit.
+  Built 375 / 1280 (768 omitted — identical centred cluster).
 
 ---
 
@@ -388,3 +428,4 @@ favourited vs not ·
 | NFR-3 States | StateScreen (Poké Ball icon) + Skeletons + §9 inventory (every Matrix cell) |
 | NFR-4 Responsive | §5 breakpoints; content capped at 768, cards stretch to fill |
 | NFR-5 Accessibility | per-type label contrast (§2.2), alt text, keyboard nav (PokemonNav) |
+| *(design-added)* App boot cover | **SplashScreen** (§6) — native `@capacitor/splash-screen` + web `index.html` overlay; brand moment over startup, hands to the Browse skeleton (no data gate) |

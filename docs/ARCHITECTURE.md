@@ -200,6 +200,12 @@ export const routes: Routes = [
 
 - **States** — the shared `Skeleton*/EmptyState/ErrorState` components + the `AppError` type
   cover every cell of the State Matrix; offline and not-found are first-class.
+- **Startup / splash** — a brand boot cover, **not a data gate**: native via
+  `@capacitor/splash-screen` (`launchShowDuration` + `SplashScreen.hide({ fadeOutDuration })`),
+  web via an `index.html` overlay removed after Angular bootstrap. It holds a ~600ms minimum then
+  fades into the Browse skeleton; it does **not** wait on `PokemonIndexService.ready` — search/swipe
+  stay disabled until the index lands (AC-2.13b / AC-6.5). Visual spec:
+  [DESIGN §6 SplashScreen](./DESIGN.md).
 - **Prefetch** — on a Browse-origin detail, `PokemonIndexService.neighbours(id)` gives ±1, and
   the repository prefetches their full bundle; obsolete prefetches are cancelled on rapid swipe.
 - **Accessibility** — `SpriteImage` requires alt text; arrows are focusable with ←/→ bindings;
