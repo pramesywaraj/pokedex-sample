@@ -7,6 +7,7 @@ import {
 } from '@angular/core';
 import { provideRouter } from '@angular/router';
 import { provideIonicAngular } from '@ionic/angular';
+import { PokemonIndexService } from './application/pokemon-index.service';
 import { CACHE, applyCacheVersion } from './data/cache/cache';
 import { IonicStorageCache } from './data/cache/ionic-storage.cache';
 import { FAVOURITES_STORE } from './data/favourites/favourites-store';
@@ -23,5 +24,8 @@ export const appConfig: ApplicationConfig = {
     { provide: CACHE, useExisting: IonicStorageCache },
     { provide: FAVOURITES_STORE, useExisting: IonicStorageFavouritesStore },
     provideAppInitializer(() => applyCacheVersion(inject(CACHE))),
+    provideAppInitializer(() => {
+      void inject(PokemonIndexService).load();
+    }),
   ],
 };

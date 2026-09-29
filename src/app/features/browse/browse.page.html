@@ -6,43 +6,62 @@
 
 <ion-content>
   <div class="page">
-    @switch (feed.status()) {
-      @case ('loading') {
-        <div class="grid" aria-hidden="true">
-          @for (skeleton of skeletons; track $index) {
-            <app-skeleton-card />
-          }
-        </div>
-      }
-      @case ('error') {
-        <app-error-state message="Couldn't load the Pokédex." (retry)="feed.loadNext()" />
-      }
-      @default {
-        <div class="grid">
-          @for (pokemon of feed.items(); track pokemon.id) {
-            <a class="card-link" [routerLink]="['/pokemon', pokemon.id]">
-              <app-pokemon-card
-                [id]="pokemon.id"
-                [name]="pokemon.name"
-                [artworkUrl]="pokemon.artworkUrl"
-              />
-            </a>
-          }
-        </div>
+    <app-search-bar [disabled]="index.disabled()" (queryChange)="onQueryChange($event)" />
 
-        @if (feed.loadMoreError()) {
-          <div class="load-more-error">
-            <span>Couldn't load more.</span>
-            <ion-button fill="clear" size="small" (click)="feed.loadNext()">Retry</ion-button>
+    @if (index.error()) {
+      <app-state-screen
+        title="Search unavailable"
+        message="We couldn't load the search index. Try again in a moment."
+        actionLabel="Retry"
+        (action)="retryIndex()"
+      />
+    } @else {
+      @switch (feed.status()) {
+        @case ('loading') {
+          <div class="grid" aria-hidden="true">
+            @for (skeleton of skeletons; track $index) {
+              <app-skeleton-card />
+            }
           </div>
         }
+        @case ('error') {
+          <app-error-state message="Couldn't load the Pokédex." (retry)="feed.loadNext()" />
+        }
+        @case ('empty') {
+          <app-state-screen
+            title="No matches"
+            [message]="'Nothing found for &quot;' + feed.query() + '&quot;.'"
+            actionLabel="Clear search"
+            (action)="clearSearch()"
+          />
+        }
+        @default {
+          <div class="grid">
+            @for (pokemon of feed.items(); track pokemon.id) {
+              <a class="card-link" [routerLink]="['/pokemon', pokemon.id]">
+                <app-pokemon-card
+                  [id]="pokemon.id"
+                  [name]="pokemon.name"
+                  [artworkUrl]="pokemon.artworkUrl"
+                />
+              </a>
+            }
+          </div>
 
-        <ion-infinite-scroll
-          [disabled]="!feed.hasMore() || feed.loadMoreError()"
-          (ionInfinite)="onInfinite($event)"
-        >
-          <ion-infinite-scroll-content loadingSpinner="crescent"></ion-infinite-scroll-content>
-        </ion-infinite-scroll>
+          @if (feed.loadMoreError()) {
+            <div class="load-more-error">
+              <span>Couldn't load more.</span>
+              <ion-button fill="clear" size="small" (click)="feed.loadNext()">Retry</ion-button>
+            </div>
+          }
+
+          <ion-infinite-scroll
+            [disabled]="!feed.hasMore() || feed.loadMoreError()"
+            (ionInfinite)="onInfinite($event)"
+          >
+            <ion-infinite-scroll-content loadingSpinner="crescent"></ion-infinite-scroll-content>
+          </ion-infinite-scroll>
+        }
       }
     }
   </div>
