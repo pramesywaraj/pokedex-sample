@@ -3,6 +3,7 @@ import { IonIcon } from '@ionic/angular';
 import { addIcons } from 'ionicons';
 import { arrowBack, swapHorizontal } from 'ionicons/icons';
 import { Pokemon } from '../../../domain/pokemon';
+import { FavouriteButton } from '../../../shared/ui/favourite-button/favourite-button';
 import { SpriteImage } from '../../../shared/ui/sprite-image/sprite-image';
 import { TypeBadge } from '../../../shared/ui/type-badge/type-badge';
 
@@ -17,7 +18,7 @@ addIcons({ arrowBack, swapHorizontal });
 @Component({
   selector: 'app-detail-header',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [IonIcon, SpriteImage, TypeBadge],
+  imports: [IonIcon, FavouriteButton, SpriteImage, TypeBadge],
   templateUrl: './detail-header.html',
   styleUrl: './detail-header.scss',
 })
@@ -25,7 +26,14 @@ export class DetailHeader {
   readonly pokemon = input.required<Pokemon>();
   /** The category label ("Seed Pokémon"), absent until the species read lands. */
   readonly category = input<string | undefined>(undefined);
+  /** Whether this Pokémon is currently saved, drives the heart's filled/outline state. */
+  readonly favourite = input<boolean>(false);
+  /** Whether the saved set has been read, so the heart is only shown once it can be trusted. */
+  readonly favouriteReady = input<boolean>(false);
+  /** Emitted when the Trainer taps Back. */
   readonly back = output<void>();
+  /** Emitted when the Trainer taps the heart; the parent owns the toggle. */
+  readonly favouriteToggle = output<void>();
 
   /** True once the Trainer flips to the back sprite; also drives aria-pressed. */
   protected readonly flipped = signal(false);

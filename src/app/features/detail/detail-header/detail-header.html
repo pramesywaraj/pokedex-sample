@@ -2,6 +2,9 @@
   <button type="button" class="icon-btn" aria-label="Back" (click)="back.emit()">
     <ion-icon name="arrow-back" aria-hidden="true"></ion-icon>
   </button>
+  @if (favouriteReady()) {
+    <app-favourite-button [active]="favourite()" (toggled)="favouriteToggle.emit()" />
+  }
 </div>
 
 <div class="top-info">

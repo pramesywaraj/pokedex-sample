@@ -27,7 +27,7 @@
   justify-content: space-between;
   min-height: 40px;
   padding: var(--pkx-space-8) var(--pkx-space-16) 0;
-  margin-left: calc(var(--pkx-space-8) * -1);
+  margin-inline: calc(var(--pkx-space-8) * -1);
 }
 
 .top-info {

@@ -18,7 +18,10 @@
         <app-detail-header
           [pokemon]="detail.pokemon()!"
           [category]="detail.category()"
+          [favourite]="isFavourite()"
+          [favouriteReady]="favourites.ready()"
           (back)="back()"
+          (favouriteToggle)="toggleFavourite()"
         />
 
         <app-detail-tabs class="tabs" [active]="activeTab()" (tabChange)="selectTab($event)" />

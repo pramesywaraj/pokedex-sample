@@ -1,0 +1,9 @@
+<button
+  type="button"
+  class="favourite-btn"
+  [attr.aria-pressed]="active()"
+  [attr.aria-label]="label()"
+  (click)="toggled.emit()"
+>
+  <ion-icon [name]="iconName()" aria-hidden="true"></ion-icon>
+</button>

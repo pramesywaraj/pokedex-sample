@@ -3,6 +3,7 @@ import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { IonContent } from '@ionic/angular';
 import { DetailService } from '../../application/detail.service';
+import { FavouritesService } from '../../application/favourites.service';
 import { ErrorState } from '../../shared/ui/error-state/error-state';
 import { PokeballBackdrop } from '../../shared/ui/pokeball-backdrop/pokeball-backdrop';
 import { SkeletonDetail } from '../../shared/ui/skeleton-detail/skeleton-detail';
@@ -39,12 +40,18 @@ import { StatsTab } from './stats-tab/stats-tab';
 })
 export class DetailPage implements OnInit {
   protected readonly detail = inject(DetailService);
+  protected readonly favourites = inject(FavouritesService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly location = inject(Location);
 
   /** The primary Type, which colours the panel and the active tab. */
   protected readonly primaryType = computed(() => this.detail.pokemon()?.types[0]);
+  /** Whether this Pokémon is currently saved, tracks the FavouritesService signal. */
+  protected readonly isFavourite = computed(() => {
+    const pokemon = this.detail.pokemon();
+    return pokemon ? this.favourites.isFavourite(pokemon.id) : false;
+  });
   /** The panel/active-tab colour, the primary Type's hue or a neutral fallback. */
   protected readonly panelVar = computed(() => {
     const type = this.primaryType();
@@ -57,6 +64,21 @@ export class DetailPage implements OnInit {
   ngOnInit(): void {
     const id = Number(this.route.snapshot.paramMap.get('id'));
     void this.detail.load(id);
+    void this.favourites.load();
+  }
+
+  /** Toggles the current Pokémon in the saved set (optimistic, reverts on write failure). */
+  protected toggleFavourite(): void {
+    const pokemon = this.detail.pokemon();
+    if (!pokemon) {
+      return;
+    }
+    void this.favourites.toggle({
+      id: pokemon.id,
+      name: pokemon.name,
+      artworkUrl: pokemon.artworkUrl,
+      types: pokemon.types,
+    });
   }
 
   /** Switches the open tab, lazily loading the evolution line the first time it opens. */
