@@ -1,0 +1,21 @@
+<label class="search-bar" [class.is-disabled]="disabled()">
+  <img
+    class="icon"
+    src="assets/icon-pokeball.svg"
+    alt=""
+    aria-hidden="true"
+    width="24"
+    height="24"
+  />
+  <input
+    #field
+    type="search"
+    class="field"
+    autocomplete="off"
+    inputmode="search"
+    [disabled]="disabled()"
+    [attr.aria-label]="placeholder()"
+    [placeholder]="disabled() ? loadingHint() : placeholder()"
+    (input)="onInput($event)"
+  />
+</label>

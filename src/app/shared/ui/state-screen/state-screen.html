@@ -1,0 +1,19 @@
+<div class="state">
+  <img
+    class="icon"
+    src="assets/pokeball-filled.svg"
+    alt=""
+    aria-hidden="true"
+    width="72"
+    height="72"
+  />
+  <h2 class="title">{{ title() }}</h2>
+  @if (message()) {
+    <p class="message">{{ message() }}</p>
+  }
+  @if (actionLabel(); as label) {
+    <ion-button class="action" shape="round" (click)="action.emit()">
+      {{ label }}
+    </ion-button>
+  }
+</div>

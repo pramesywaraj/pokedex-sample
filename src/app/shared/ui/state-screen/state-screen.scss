@@ -1,0 +1,44 @@
+:host {
+  display: block;
+}
+
+.state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--pkx-space-12);
+  padding: var(--pkx-space-24) 23px 14px;
+  border-radius: 20px;
+  min-height: 360px;
+  height: 100%;
+  text-align: center;
+  background: var(--pkx-bg);
+}
+
+.icon {
+  color: #ccccd6;
+  margin-bottom: var(--pkx-space-8);
+}
+
+.title {
+  margin: 0;
+  color: var(--pkx-ink);
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.message {
+  margin: 0;
+  max-width: 280px;
+  color: var(--pkx-muted);
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.action {
+  margin-top: var(--pkx-space-16);
+  min-width: 160px;
+  --border-radius: 23px;
+}
