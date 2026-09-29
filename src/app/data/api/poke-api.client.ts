@@ -29,6 +29,15 @@ export class PokeApiClient {
     return this.http.get<PokemonListDto>(url);
   }
 
+  /**
+   * Fetches the whole `/pokemon` list in one shot for the startup index. The
+   * `limit` should be the count read from a `limit=1` probe, so no hard-coded
+   * number can silently truncate as the dex grows.
+   */
+  getIndex(limit: number): Observable<PokemonListDto> {
+    return this.http.get<PokemonListDto>(`${this.baseUrl}/pokemon?offset=0&limit=${limit}`);
+  }
+
   /** Fetches one `/pokemon/{id}` record by entry id. */
   getPokemon(id: number): Observable<PokemonDto> {
     return this.http.get<PokemonDto>(`${this.baseUrl}/pokemon/${id}`);

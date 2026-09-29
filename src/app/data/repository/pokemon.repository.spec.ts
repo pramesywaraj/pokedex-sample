@@ -4,9 +4,16 @@ import { PokeApiClient } from '../api/poke-api.client';
 import { CACHE } from '../cache/cache';
 import { InMemoryCache } from '../cache/in-memory.cache';
 import { EvolutionChainDto } from '../dto/evolution-chain.dto';
+import { PokemonListDto } from '../dto/pokemon-list.dto';
 import { PokemonDto } from '../dto/pokemon.dto';
 import { PokemonSpeciesDto } from '../dto/pokemon-species.dto';
-import { PokemonRepository, evolutionKey, pokemonKey, speciesKey } from './pokemon.repository';
+import {
+  INDEX_KEY,
+  PokemonRepository,
+  evolutionKey,
+  pokemonKey,
+  speciesKey,
+} from './pokemon.repository';
 
 function pokemonDto(id: number, speciesId: number): PokemonDto {
   return {
@@ -53,6 +60,8 @@ class FakeClient {
   pokemonCalls = 0;
   speciesCalls = 0;
   evolutionCalls = 0;
+  probeCalls = 0;
+  indexCalls = 0;
 
   getPokemon(id: number): Observable<PokemonDto> {
     this.pokemonCalls++;
@@ -67,6 +76,20 @@ class FakeClient {
   getEvolution(chainId: number): Observable<EvolutionChainDto> {
     this.evolutionCalls++;
     return of(evolutionDto(chainId));
+  }
+
+  getPage(): Observable<PokemonListDto> {
+    this.probeCalls++;
+    return of({ count: 3, next: null, previous: null, results: [] });
+  }
+
+  getIndex(limit: number): Observable<PokemonListDto> {
+    this.indexCalls++;
+    const results = Array.from({ length: limit }, (_, i) => ({
+      name: `p-${i + 1}`,
+      url: `https://pokeapi.co/api/v2/pokemon/${i + 1}/`,
+    }));
+    return of({ count: limit, next: null, previous: null, results });
   }
 }
 
@@ -132,5 +155,23 @@ describe('PokemonRepository', () => {
     vi.spyOn(cache, 'set').mockRejectedValue(new Error('quota'));
     const pokemon = await repo.getPokemon(6);
     expect(pokemon.name).toBe('Charizard');
+  });
+
+  describe('getIndex', () => {
+    it('probes for the count, fetches the full list, maps and caches it', async () => {
+      const index = await repo.getIndex();
+      expect(client.probeCalls).toBe(1);
+      expect(client.indexCalls).toBe(1);
+      expect(index.map((i) => i.id)).toEqual([1, 2, 3]);
+      expect(index[0].name).toBe('P 1');
+      expect(await cache.get(INDEX_KEY)).toEqual(index);
+    });
+
+    it('serves the second read from the cache with no extra fetch', async () => {
+      await repo.getIndex();
+      await repo.getIndex();
+      expect(client.probeCalls).toBe(1);
+      expect(client.indexCalls).toBe(1);
+    });
   });
 });

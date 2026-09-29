@@ -2,13 +2,17 @@ import { Injectable, inject } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { EvolutionChain } from '../../domain/evolution';
 import { Pokemon } from '../../domain/pokemon';
+import { PokemonSummary } from '../../domain/pokemon-summary';
 import { Species } from '../../domain/species';
 import { PokeApiClient } from '../api/poke-api.client';
 import { CACHE } from '../cache/cache';
 import { toEvolutionChain } from '../mappers/evolution-chain.mapper';
 import { toPokemon } from '../mappers/pokemon.mapper';
 import { toSpecies } from '../mappers/pokemon-species.mapper';
+import { toPokemonSummaries } from '../mappers/pokemon-summary.mapper';
 
+/** Cache key for the phone-book index (the full ordered list of every entry). */
+export const INDEX_KEY = 'index';
 /** Cache key for a Pokémon record, by entry id. */
 export const pokemonKey = (id: number): string => `pokemon:${id}`;
 /** Cache key for a species record, by species id (a Form and its base share it). */
@@ -28,6 +32,20 @@ export class PokemonRepository {
   private readonly client = inject(PokeApiClient);
   private readonly cache = inject(CACHE);
   private readonly inflight = new Map<string, Promise<unknown>>();
+
+  /**
+   * Reads the phone-book index (every entry's id and title-cased name, in list
+   * order), keyed `index`. Loaded via count then fetch the data, one `limit=1` probe to
+   * read the total, then one `limit={count}` call, so no hardcoded limit can
+   * silently truncate as the dex grows.
+   */
+  getIndex(): Promise<PokemonSummary[]> {
+    return this.read(INDEX_KEY, async () => {
+      const probe = await firstValueFrom(this.client.getPage(null));
+      const full = await firstValueFrom(this.client.getIndex(probe.count));
+      return toPokemonSummaries(full);
+    });
+  }
 
   /** Reads a Pokémon by entry id, keyed `pokemon:{id}`. */
   getPokemon(id: number): Promise<Pokemon> {
