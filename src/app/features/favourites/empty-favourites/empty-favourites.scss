@@ -1,0 +1,41 @@
+:host {
+  display: block;
+}
+
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--pkx-space-12);
+  padding: var(--pkx-space-24) var(--pkx-space-24) var(--pkx-space-16);
+  text-align: center;
+}
+
+.ball {
+  width: 72px;
+  height: 72px;
+  opacity: 0.6;
+}
+
+.title {
+  margin: 0;
+  color: var(--pkx-ink);
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.body {
+  margin: 0;
+  max-width: 280px;
+  color: var(--pkx-muted);
+  font-size: var(--pkx-text-body-size);
+  line-height: var(--pkx-text-body-line);
+}
+
+.cta {
+  --background: var(--pkx-accent);
+  --color: var(--pkx-on-type);
+  --border-radius: var(--pkx-radius-button);
+  min-width: 160px;
+  margin-top: var(--pkx-space-4);
+}

@@ -4,6 +4,40 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content class="ion-padding">
-  <p>Pokémon you keep will appear here.</p>
+<ion-content>
+  <div class="page">
+    @switch (favourites.status()) {
+      @case ('error') {
+        <app-error-state
+          message="Couldn't load your favourites."
+          (retry)="favourites.retry()"
+        />
+      }
+      @case ('ready') {
+        @if (favourites.entries().length === 0) {
+          <app-empty-favourites (goToBrowse)="goToBrowse()" />
+        } @else {
+          <div class="grid">
+            @for (entry of favourites.entries(); track entry.id) {
+              <a class="card-link" [routerLink]="['/pokemon', entry.id]">
+                <app-pokemon-card
+                  [id]="entry.id"
+                  [name]="entry.name"
+                  [artworkUrl]="entry.artworkUrl"
+                  [types]="entry.types"
+                />
+              </a>
+            }
+          </div>
+        }
+      }
+      @default {
+        <div class="grid" aria-hidden="true">
+          @for (skeleton of skeletons; track $index) {
+            <app-skeleton-card />
+          }
+        </div>
+      }
+    }
+  </div>
 </ion-content>
