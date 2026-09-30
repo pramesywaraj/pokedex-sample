@@ -14,6 +14,14 @@
   color: var(--card-on, var(--pkx-ink));
   box-shadow: var(--pkx-shadow-soft);
   overflow: hidden;
+  transition:
+    background-color var(--pkx-duration-base) var(--pkx-ease),
+    color var(--pkx-duration-base) var(--pkx-ease),
+    box-shadow var(--pkx-duration-base) var(--pkx-ease);
+}
+
+.card.tinted {
+  box-shadow: var(--pkx-shadow-type);
 }
 
 .number {

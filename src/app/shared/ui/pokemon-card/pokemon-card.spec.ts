@@ -2,9 +2,11 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { PokemonCard } from './pokemon-card';
 
 describe('PokemonCard', () => {
-  async function render(
-    inputs: { id: number; name: string; types?: string[] },
-  ): Promise<ComponentFixture<PokemonCard>> {
+  async function render(inputs: {
+    id: number;
+    name: string;
+    types?: string[];
+  }): Promise<ComponentFixture<PokemonCard>> {
     const fixture = TestBed.createComponent(PokemonCard);
     fixture.componentRef.setInput('id', inputs.id);
     fixture.componentRef.setInput('name', inputs.name);
@@ -39,6 +41,26 @@ describe('PokemonCard', () => {
   it('fills with the primary Type colour when types are supplied', async () => {
     const fixture = await render({ id: 6, name: 'Charizard', types: ['fire', 'flying'] });
     const card = (fixture.nativeElement as HTMLElement).querySelector('.card') as HTMLElement;
+    expect(card.getAttribute('style')).toContain('--pkx-type-fire');
+  });
+
+  it('adds the tinted class and Type shadow rgb once the primary Type is known', async () => {
+    const fixture = await render({ id: 6, name: 'Charizard', types: ['fire', 'flying'] });
+    const card = (fixture.nativeElement as HTMLElement).querySelector('.card') as HTMLElement;
+    expect(card.classList.contains('tinted')).toBe(true);
+    expect(card.getAttribute('style')).toContain('--pkx-type-fire-rgb');
+  });
+
+  it('re-colours already-rendered cards when the types input lands after first render', async () => {
+    const fixture = await render({ id: 6, name: 'Charizard' });
+    const card = (fixture.nativeElement as HTMLElement).querySelector('.card') as HTMLElement;
+    expect(card.classList.contains('tinted')).toBe(false);
+
+    fixture.componentRef.setInput('types', ['fire']);
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(card.classList.contains('tinted')).toBe(true);
     expect(card.getAttribute('style')).toContain('--pkx-type-fire');
   });
 });

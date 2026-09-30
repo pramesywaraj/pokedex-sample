@@ -32,4 +32,13 @@ export class PokemonCard {
     const type = this.primaryType();
     return type ? `var(--pkx-type-${type}-on)` : 'var(--pkx-ink)';
   });
+
+  /**
+   * The Type tinted shadow's rgb triple, slotted into --pkx-shadow-type from
+   * the theme tokens. Neutral shadow until the Type map fills.
+   */
+  protected readonly shadowRgbVar = computed(() => {
+    const type = this.primaryType();
+    return type ? `var(--pkx-type-${type}-rgb)` : null;
+  });
 }

@@ -1,4 +1,10 @@
-<div class="card" [style.--card-fill]="fillVar()" [style.--card-on]="onVar()">
+<div
+  class="card"
+  [class.tinted]="primaryType() !== undefined"
+  [style.--card-fill]="fillVar()"
+  [style.--card-on]="onVar()"
+  [style.--pkx-shadow-type-rgb]="shadowRgbVar()"
+>
   <span class="number">{{ numberLabel() }}</span>
   <div class="art">
     <app-sprite-image [src]="artworkUrl()" [alt]="name() + ' artwork'" />

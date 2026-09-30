@@ -54,7 +54,9 @@ export class BrowsePage implements OnInit {
 
   ngOnInit(): void {
     if (this.feed.items().length === 0) {
-      void this.feed.showBrowse();
+      void this.feed.showBrowse().then(() => this.index.warmUpTypes());
+    } else {
+      void this.index.warmUpTypes();
     }
   }
 

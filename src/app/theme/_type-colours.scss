@@ -1,40 +1,59 @@
-// The 18 Type colours as CSS variables
+// The 18 Type colours as CSS variables. The `-rgb` triple mirrors the hex, so
+// cards can slot it into the Type-tinted shadow recipe from _tokens.scss.
 
 :root {
   --pkx-type-normal: #aaa67f;
+  --pkx-type-normal-rgb: 170, 166, 127;
   --pkx-type-normal-on: #000000;
   --pkx-type-fire: #f57d31;
+  --pkx-type-fire-rgb: 245, 125, 49;
   --pkx-type-fire-on: #ffffff;
   --pkx-type-water: #6493eb;
+  --pkx-type-water-rgb: 100, 147, 235;
   --pkx-type-water-on: #ffffff;
   --pkx-type-grass: #74cb48;
+  --pkx-type-grass-rgb: 116, 203, 72;
   --pkx-type-grass-on: #ffffff;
   --pkx-type-electric: #f9cf30;
+  --pkx-type-electric-rgb: 249, 207, 48;
   --pkx-type-electric-on: #000000;
   --pkx-type-ice: #9ad6df;
+  --pkx-type-ice-rgb: 154, 214, 223;
   --pkx-type-ice-on: #000000;
   --pkx-type-fighting: #c12239;
+  --pkx-type-fighting-rgb: 193, 34, 57;
   --pkx-type-fighting-on: #ffffff;
   --pkx-type-poison: #a33ea1;
+  --pkx-type-poison-rgb: 163, 62, 161;
   --pkx-type-poison-on: #ffffff;
   --pkx-type-ground: #dec16b;
+  --pkx-type-ground-rgb: 222, 193, 107;
   --pkx-type-ground-on: #000000;
   --pkx-type-flying: #a891ec;
+  --pkx-type-flying-rgb: 168, 145, 236;
   --pkx-type-flying-on: #000000;
   --pkx-type-psychic: #fb5584;
+  --pkx-type-psychic-rgb: 251, 85, 132;
   --pkx-type-psychic-on: #ffffff;
   --pkx-type-bug: #a7b723;
+  --pkx-type-bug-rgb: 167, 183, 35;
   --pkx-type-bug-on: #000000;
   --pkx-type-rock: #b69e31;
+  --pkx-type-rock-rgb: 182, 158, 49;
   --pkx-type-rock-on: #000000;
   --pkx-type-ghost: #70559b;
+  --pkx-type-ghost-rgb: 112, 85, 155;
   --pkx-type-ghost-on: #ffffff;
   --pkx-type-dragon: #7037ff;
+  --pkx-type-dragon-rgb: 112, 55, 255;
   --pkx-type-dragon-on: #ffffff;
   --pkx-type-dark: #75574c;
+  --pkx-type-dark-rgb: 117, 87, 76;
   --pkx-type-dark-on: #ffffff;
   --pkx-type-steel: #b7b9d0;
+  --pkx-type-steel-rgb: 183, 185, 208;
   --pkx-type-steel-on: #000000;
   --pkx-type-fairy: #e69eac;
+  --pkx-type-fairy-rgb: 230, 158, 172;
   --pkx-type-fairy-on: #000000;
 }
