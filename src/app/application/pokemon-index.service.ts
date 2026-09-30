@@ -1,6 +1,7 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
 import { PokemonSummary } from '../domain/pokemon-summary';
-import { PokemonRepository } from '../data/repository/pokemon.repository';
+import { PokemonTypeName } from '../domain/pokemon-type-name';
+import { PokemonRepository, TypeIndex } from '../data/repository/pokemon.repository';
 
 /** Neighbour ids either side of a position, missing at the ends of the list. */
 export interface Neighbours {
@@ -35,6 +36,13 @@ export class PokemonIndexService {
 
   /** Cheap flag for the search bar's disabled+hint state before the index lands. */
   readonly disabled = computed(() => !this._ready() || this._error());
+
+  private readonly _typeIndex = signal<TypeIndex>(new Map());
+  private readonly _typesReady = signal(false);
+  private typesInFlight: Promise<void> | null = null;
+
+  /** True once the background Type warm-up has folded the 18 sets into the map. */
+  readonly typesReady = this._typesReady.asReadonly();
 
   /** Position of an entry id in list order, or undefined if it isn't in the index. */
   private positions = new Map<number, number>();
@@ -96,6 +104,44 @@ export class PokemonIndexService {
   }
 
   /**
+   * Kicks the background Type warm up that colours the Browse cards. Runs off
+   * the scroll path (fires after the first Browse page lands), folds the 18
+   * cached Type sets into the id to Types map, and flips typesReady when the
+   * map is in place. Idempotent, concurrent callers share one warm-up.
+   */
+  warmUpTypes(): Promise<void> {
+    if (this._typesReady()) {
+      return Promise.resolve();
+    }
+    if (this.typesInFlight) {
+      return this.typesInFlight;
+    }
+    this.typesInFlight = this.repository
+      .getTypeIndex()
+      .then((index) => {
+        this._typeIndex.set(index);
+        this._typesReady.set(true);
+      })
+      .catch(() => {
+        // A failed warm-up leaves cards neutral tinted, the Type filter will
+        // still fetch each set on demand and populate the map for reuse.
+      })
+      .finally(() => {
+        this.typesInFlight = null;
+      });
+    return this.typesInFlight;
+  }
+
+  /**
+   * Looks up an entry id's Types from the warmed map, primary Type first.
+   * Returns undefined until the warm-up completes for that id, which the
+   * card renders as a neutral tint until the map fills.
+   */
+  typesOf(id: number): PokemonTypeName[] | undefined {
+    return this._typeIndex().get(id);
+  }
+
+  /**
    * Partial match over the loaded index. A query is compared against both the
    * title cased name (case insensitive substring) and the entry id, matching by
    * substring.
@@ -106,8 +152,7 @@ export class PokemonIndexService {
       return [];
     }
     return this._items().filter(
-      (item) =>
-        item.name.toLowerCase().includes(query) || String(item.id).includes(query),
+      (item) => item.name.toLowerCase().includes(query) || String(item.id).includes(query),
     );
   }
 }

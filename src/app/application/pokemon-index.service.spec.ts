@@ -1,16 +1,31 @@
 import { TestBed } from '@angular/core/testing';
 import { PokemonSummary } from '../domain/pokemon-summary';
-import { PokemonRepository } from '../data/repository/pokemon.repository';
+import { PokemonTypeName } from '../domain/pokemon-type-name';
+import { PokemonRepository, TypeIndex } from '../data/repository/pokemon.repository';
 import { PokemonIndexService } from './pokemon-index.service';
 
 class FakeRepository {
   outcomes: (PokemonSummary[] | Error)[] = [];
   calls = 0;
+  typeIndexOutcomes: (TypeIndex | Error)[] = [];
+  typeIndexCalls = 0;
 
   getIndex(): Promise<PokemonSummary[]> {
     const outcome = this.outcomes[this.calls++];
     return outcome instanceof Error ? Promise.reject(outcome) : Promise.resolve(outcome);
   }
+
+  getTypeIndex(): Promise<TypeIndex> {
+    const outcome = this.typeIndexOutcomes[this.typeIndexCalls++];
+    if (outcome === undefined) {
+      return Promise.resolve(new Map());
+    }
+    return outcome instanceof Error ? Promise.reject(outcome) : Promise.resolve(outcome);
+  }
+}
+
+function ti(entries: [id: number, types: PokemonTypeName[]][]): TypeIndex {
+  return new Map(entries);
 }
 
 function s(id: number, name: string): PokemonSummary {
@@ -24,10 +39,7 @@ describe('PokemonIndexService', () => {
   beforeEach(() => {
     repo = new FakeRepository();
     TestBed.configureTestingModule({
-      providers: [
-        PokemonIndexService,
-        { provide: PokemonRepository, useValue: repo },
-      ],
+      providers: [PokemonIndexService, { provide: PokemonRepository, useValue: repo }],
     });
     service = TestBed.inject(PokemonIndexService);
   });
@@ -72,9 +84,7 @@ describe('PokemonIndexService', () => {
 
   describe('after loading', () => {
     beforeEach(async () => {
-      repo.outcomes = [
-        [s(1, 'Bulbasaur'), s(25, 'Pikachu'), s(10001, 'Deoxys Attack')],
-      ];
+      repo.outcomes = [[s(1, 'Bulbasaur'), s(25, 'Pikachu'), s(10001, 'Deoxys Attack')]];
       await service.load();
     });
 
@@ -104,6 +114,47 @@ describe('PokemonIndexService', () => {
     it('returns nothing for an empty query', () => {
       expect(service.search('')).toEqual([]);
       expect(service.search('   ')).toEqual([]);
+    });
+  });
+
+  describe('type warm-up', () => {
+    it('starts with typesReady false and typesOf returning undefined', () => {
+      expect(service.typesReady()).toBe(false);
+      expect(service.typesOf(1)).toBeUndefined();
+    });
+
+    it('folds the type index in and flips typesReady when the warm-up lands', async () => {
+      repo.typeIndexOutcomes = [
+        ti([
+          [6, ['fire', 'flying']],
+          [25, ['electric']],
+        ]),
+      ];
+      await service.warmUpTypes();
+      expect(service.typesReady()).toBe(true);
+      expect(service.typesOf(6)).toEqual(['fire', 'flying']);
+      expect(service.typesOf(25)).toEqual(['electric']);
+      expect(service.typesOf(9999)).toBeUndefined();
+    });
+
+    it('coalesces concurrent warm-ups onto one repository call', async () => {
+      repo.typeIndexOutcomes = [ti([[1, ['grass']]])];
+      await Promise.all([service.warmUpTypes(), service.warmUpTypes(), service.warmUpTypes()]);
+      expect(repo.typeIndexCalls).toBe(1);
+    });
+
+    it('does not re-fetch once the warm-up is ready', async () => {
+      repo.typeIndexOutcomes = [ti([[1, ['grass']]])];
+      await service.warmUpTypes();
+      await service.warmUpTypes();
+      expect(repo.typeIndexCalls).toBe(1);
+    });
+
+    it('leaves typesReady false when the warm-up fails so cards stay neutral', async () => {
+      repo.typeIndexOutcomes = [new Error('offline')];
+      await service.warmUpTypes();
+      expect(service.typesReady()).toBe(false);
+      expect(service.typesOf(1)).toBeUndefined();
     });
   });
 });
