@@ -8,10 +8,7 @@
   <div class="page">
     @switch (favourites.status()) {
       @case ('error') {
-        <app-error-state
-          message="Couldn't load your favourites."
-          (retry)="favourites.retry()"
-        />
+        <app-error-state message="Couldn't load your favourites." (retry)="favourites.retry()" />
       }
       @case ('ready') {
         @if (favourites.entries().length === 0) {

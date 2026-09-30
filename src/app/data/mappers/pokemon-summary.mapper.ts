@@ -5,7 +5,7 @@ import { artworkUrlFor } from './sprite-urls';
 /** Extracts the trailing entry id from a PokeAPI resource url
  * For example :
  * We hit GET ".../pokemon/25/", then it transformed into 25.
-*/
+ */
 export function idFromResourceUrl(url: string): number {
   const match = /\/(\d+)\/?$/.exec(url);
   if (!match) {
@@ -16,7 +16,7 @@ export function idFromResourceUrl(url: string): number {
 
 /**
  * Title-cases and de-hyphenates a PokeAPI name slug.
- * For Example : 
+ * For Example :
  * "mr-mime" to "Mr Mime"
  * "charizard-mega-x" to "Charizard Mega X"
  */
