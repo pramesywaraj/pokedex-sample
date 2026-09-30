@@ -2,10 +2,12 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
+import { PokemonTypeName } from '../../domain/pokemon-type-name';
 import { EvolutionChainDto } from '../dto/evolution-chain.dto';
 import { PokemonListDto } from '../dto/pokemon-list.dto';
 import { PokemonSpeciesDto } from '../dto/pokemon-species.dto';
 import { PokemonDto } from '../dto/pokemon.dto';
+import { TypeDetailDto } from '../dto/type-detail.dto';
 
 export const BROWSE_PAGE_SIZE = 20;
 
@@ -51,5 +53,10 @@ export class PokeApiClient {
   /** Fetches one `/evolution-chain/{chainId}` record (a whole line shares one). */
   getEvolution(chainId: number): Observable<EvolutionChainDto> {
     return this.http.get<EvolutionChainDto>(`${this.baseUrl}/evolution-chain/${chainId}`);
+  }
+
+  /** Fetches one `/type/{name}` record. */
+  getType(name: PokemonTypeName): Observable<TypeDetailDto> {
+    return this.http.get<TypeDetailDto>(`${this.baseUrl}/type/${name}`);
   }
 }
