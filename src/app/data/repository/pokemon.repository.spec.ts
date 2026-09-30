@@ -1,5 +1,6 @@
 import { TestBed } from '@angular/core/testing';
-import { Observable, of } from 'rxjs';
+import { Observable, of, throwError } from 'rxjs';
+import { PokemonTypeName } from '../../domain/pokemon-type-name';
 import { PokeApiClient } from '../api/poke-api.client';
 import { CACHE } from '../cache/cache';
 import { InMemoryCache } from '../cache/in-memory.cache';
@@ -7,12 +8,14 @@ import { EvolutionChainDto } from '../dto/evolution-chain.dto';
 import { PokemonListDto } from '../dto/pokemon-list.dto';
 import { PokemonDto } from '../dto/pokemon.dto';
 import { PokemonSpeciesDto } from '../dto/pokemon-species.dto';
+import { TypeDetailDto } from '../dto/type-detail.dto';
 import {
   INDEX_KEY,
   PokemonRepository,
   evolutionKey,
   pokemonKey,
   speciesKey,
+  typeKey,
 } from './pokemon.repository';
 
 function pokemonDto(id: number, speciesId: number): PokemonDto {
@@ -62,6 +65,9 @@ class FakeClient {
   evolutionCalls = 0;
   probeCalls = 0;
   indexCalls = 0;
+  typeCalls: string[] = [];
+  typeSets = new Map<PokemonTypeName, TypeDetailDto>();
+  failingTypes = new Set<PokemonTypeName>();
 
   getPokemon(id: number): Observable<PokemonDto> {
     this.pokemonCalls++;
@@ -91,6 +97,23 @@ class FakeClient {
     }));
     return of({ count: limit, next: null, previous: null, results });
   }
+
+  getType(name: PokemonTypeName): Observable<TypeDetailDto> {
+    this.typeCalls.push(name);
+    if (this.failingTypes.has(name)) {
+      return throwError(() => new Error(`type ${name} failed`));
+    }
+    return of(this.typeSets.get(name) ?? { pokemon: [] });
+  }
+}
+
+function typeDto(entries: [id: number, slot: number][]): TypeDetailDto {
+  return {
+    pokemon: entries.map(([id, slot]) => ({
+      slot,
+      pokemon: { name: `p-${id}`, url: `https://pokeapi.co/api/v2/pokemon/${id}/` },
+    })),
+  };
 }
 
 describe('PokemonRepository', () => {
@@ -155,6 +178,53 @@ describe('PokemonRepository', () => {
     vi.spyOn(cache, 'set').mockRejectedValue(new Error('quota'));
     const pokemon = await repo.getPokemon(6);
     expect(pokemon.name).toBe('Charizard');
+  });
+
+  describe('getTypeIndex', () => {
+    it('folds every Type set into an id to Types map, primary Type first by slot', async () => {
+      client.typeSets.set('fire', typeDto([[6, 1]]));
+      client.typeSets.set('flying', typeDto([[6, 2]]));
+      client.typeSets.set('water', typeDto([[7, 1]]));
+
+      const index = await repo.getTypeIndex();
+
+      expect(index.get(6)).toEqual(['fire', 'flying']);
+      expect(index.get(7)).toEqual(['water']);
+    });
+
+    it('orders Types by slot even when the sets are visited in reverse', async () => {
+      client.typeSets.set('flying', typeDto([[6, 2]]));
+      client.typeSets.set('fire', typeDto([[6, 1]]));
+
+      const index = await repo.getTypeIndex();
+
+      expect(index.get(6)).toEqual(['fire', 'flying']);
+    });
+
+    it('skips a failed Type set so a single request failure does not lose the others', async () => {
+      client.typeSets.set('fire', typeDto([[6, 1]]));
+      client.typeSets.set('water', typeDto([[7, 1]]));
+      client.failingTypes.add('fire');
+
+      const index = await repo.getTypeIndex();
+
+      expect(index.get(6)).toBeUndefined();
+      expect(index.get(7)).toEqual(['water']);
+    });
+
+    it('caches each Type set at type:{name} for reuse by the Type filter', async () => {
+      client.typeSets.set('fire', typeDto([[6, 1]]));
+      await repo.getTypeIndex();
+      expect(await cache.get(typeKey('fire'))).toEqual([{ id: 6, slot: 1 }]);
+    });
+
+    it('reads cached Type sets straight through on a second fold', async () => {
+      client.typeSets.set('fire', typeDto([[6, 1]]));
+      await repo.getTypeIndex();
+      const firstRound = [...client.typeCalls];
+      await repo.getTypeIndex();
+      expect(client.typeCalls).toEqual(firstRound);
+    });
   });
 
   describe('getIndex', () => {

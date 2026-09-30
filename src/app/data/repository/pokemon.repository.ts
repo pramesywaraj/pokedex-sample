@@ -3,6 +3,7 @@ import { firstValueFrom } from 'rxjs';
 import { EvolutionChain } from '../../domain/evolution';
 import { Pokemon } from '../../domain/pokemon';
 import { PokemonSummary } from '../../domain/pokemon-summary';
+import { PokemonTypeName, pokemonTypeNames } from '../../domain/pokemon-type-name';
 import { Species } from '../../domain/species';
 import { PokeApiClient } from '../api/poke-api.client';
 import { CACHE } from '../cache/cache';
@@ -10,6 +11,7 @@ import { toEvolutionChain } from '../mappers/evolution-chain.mapper';
 import { toPokemon } from '../mappers/pokemon.mapper';
 import { toSpecies } from '../mappers/pokemon-species.mapper';
 import { toPokemonSummaries } from '../mappers/pokemon-summary.mapper';
+import { TypeMember, toTypeMembers } from '../mappers/type.mapper';
 
 /** Cache key for the phone-book index (the full ordered list of every entry). */
 export const INDEX_KEY = 'index';
@@ -19,6 +21,11 @@ export const pokemonKey = (id: number): string => `pokemon:${id}`;
 export const speciesKey = (speciesId: number): string => `species:${speciesId}`;
 /** Cache key for an evolution chain, by chain id (a whole line shares it). */
 export const evolutionKey = (chainId: number): string => `evolution:${chainId}`;
+/** Cache key for a Type set, by Type name. */
+export const typeKey = (name: PokemonTypeName): string => `type:${name}`;
+
+/** In-memory lookup from entry id to its Types, primary Type first for card colouring. */
+export type TypeIndex = ReadonlyMap<number, PokemonTypeName[]>;
 
 /**
  * The fetch-or-reuse boundary the detail side reads through. Every resource is
@@ -65,6 +72,49 @@ export class PokemonRepository {
   getEvolution(chainId: number): Promise<EvolutionChain> {
     return this.read(evolutionKey(chainId), async () =>
       toEvolutionChain(await firstValueFrom(this.client.getEvolution(chainId))),
+    );
+  }
+
+  /**
+   * Folds the 18 Type sets into a lookup from entry id to its Types, each
+   * Pokémon's Types in slot order so `types[0]` is the primary. Runs off the
+   * scroll path (the background warm up in the index service), so cards can
+   * re colour in reactively once the map fills. A failed Type set is skipped,
+   * its members just stay neutral tinted.
+   */
+  async getTypeIndex(): Promise<TypeIndex> {
+    const sets = await Promise.all(
+      pokemonTypeNames.map(async (name) => {
+        try {
+          return { name, members: await this.readType(name) };
+        } catch {
+          return { name, members: [] };
+        }
+      }),
+    );
+    const bySlot = new Map<number, { name: PokemonTypeName; slot: number }[]>();
+    for (const { name, members } of sets) {
+      for (const member of members) {
+        const slots = bySlot.get(member.id) ?? [];
+        slots.push({ name, slot: member.slot });
+        bySlot.set(member.id, slots);
+      }
+    }
+    const index = new Map<number, PokemonTypeName[]>();
+    for (const [id, slots] of bySlot) {
+      slots.sort((a, b) => a.slot - b.slot);
+      index.set(
+        id,
+        slots.map((s) => s.name),
+      );
+    }
+    return index;
+  }
+
+  /** Reads a Type set from the cache or fetches and maps it on a miss. */
+  private readType(name: PokemonTypeName): Promise<TypeMember[]> {
+    return this.read(typeKey(name), async () =>
+      toTypeMembers(await firstValueFrom(this.client.getType(name))),
     );
   }
 
