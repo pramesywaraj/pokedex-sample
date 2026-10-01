@@ -12,6 +12,8 @@ import { CACHE, applyCacheVersion } from './data/cache/cache';
 import { IonicStorageCache } from './data/cache/ionic-storage.cache';
 import { FAVOURITES_STORE } from './data/favourites/favourites-store';
 import { IonicStorageFavouritesStore } from './data/favourites/ionic-storage-favourites.store';
+import { CONNECTIVITY } from './data/platform/connectivity';
+import { platformConnectivity } from './data/platform/platform-connectivity';
 import { errorNormaliseInterceptor } from './core/interceptors/error-normalise.interceptor';
 import { retryBackoffInterceptor } from './core/interceptors/retry-backoff.interceptor';
 import { routes } from './app.routes';
@@ -24,6 +26,7 @@ export const appConfig: ApplicationConfig = {
     provideHttpClient(withInterceptors([errorNormaliseInterceptor, retryBackoffInterceptor])),
     { provide: CACHE, useExisting: IonicStorageCache },
     { provide: FAVOURITES_STORE, useExisting: IonicStorageFavouritesStore },
+    { provide: CONNECTIVITY, useFactory: platformConnectivity },
     provideAppInitializer(() => applyCacheVersion(inject(CACHE))),
     provideAppInitializer(() => {
       void inject(PokemonIndexService).load();

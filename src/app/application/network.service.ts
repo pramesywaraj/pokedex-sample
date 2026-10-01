@@ -1,31 +1,26 @@
 import { DestroyRef, Injectable, effect, inject, signal } from '@angular/core';
+import { CONNECTIVITY } from '../data/platform/connectivity';
 
 /**
- * The device's connectivity, exposed as a signal that flips when the browser
- * raises its online or offline events. Lets the retry backoff interceptor fail
- * fast while offline, and lets views swap to the offline state and auto recover
- * on reconnect.
+ * The device's connectivity, exposed as a signal that flips when the platform
+ * reports a change. Lets the retry backoff interceptor fail fast while offline,
+ * and lets views swap to the offline state and auto recover on reconnect. Where
+ * the answer comes from is the adapter's business, the platform's own network
+ * state in a native shell or the browser's events on the web, so this one signal
+ * reads the same either way.
  */
 @Injectable({ providedIn: 'root' })
 export class NetworkService {
-  private readonly _online = signal(this.readInitialOnline());
+  // Both adapters report synchronously when the watch starts, so this opening
+  // value only stands in for the moment before that.
+  private readonly _online = signal(true);
 
-  /** True when the device is reachable, flips with the browser's online or offline events. */
+  /** True when the device is reachable, flips as the platform reports changes. */
   readonly online = this._online.asReadonly();
 
   constructor() {
-    const target = typeof window === 'undefined' ? null : window;
-    if (!target) {
-      return;
-    }
-    const goOnline = () => this._online.set(true);
-    const goOffline = () => this._online.set(false);
-    target.addEventListener('online', goOnline);
-    target.addEventListener('offline', goOffline);
-    inject(DestroyRef).onDestroy(() => {
-      target.removeEventListener('online', goOnline);
-      target.removeEventListener('offline', goOffline);
-    });
+    const stopWatching = inject(CONNECTIVITY).watch((online) => this._online.set(online));
+    inject(DestroyRef).onDestroy(stopWatching);
   }
 
   /**
@@ -46,12 +41,5 @@ export class NetworkService {
         wasOffline = true;
       }
     });
-  }
-
-  private readInitialOnline(): boolean {
-    if (typeof navigator === 'undefined') {
-      return true;
-    }
-    return navigator.onLine;
   }
 }
