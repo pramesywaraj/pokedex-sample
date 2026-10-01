@@ -11,21 +11,44 @@
         <app-error-state message="Couldn't load your favourites." (retry)="favourites.retry()" />
       }
       @case ('ready') {
-        @if (favourites.entries().length === 0) {
+        @if (!hasEntries()) {
           <app-empty-favourites (goToBrowse)="goToBrowse()" />
         } @else {
-          <div class="grid">
-            @for (entry of favourites.entries(); track entry.id) {
-              <a class="card-link" [routerLink]="['/pokemon', entry.id]" [state]="detailNavState">
-                <app-pokemon-card
-                  [id]="entry.id"
-                  [name]="entry.name"
-                  [artworkUrl]="entry.artworkUrl"
-                  [types]="entry.types"
-                />
-              </a>
-            }
-          </div>
+          <app-search-bar
+            placeholder="Search your favourites Pokémon Name or Dex Number"
+            (queryChange)="onQueryChange($event)"
+          />
+
+          <app-type-filter [active]="activeType()" (pick)="onTypePick($event)" />
+
+          @if (visibleEntries().length > 0) {
+            <div class="grid">
+              @for (entry of visibleEntries(); track entry.id) {
+                <a class="card-link" [routerLink]="['/pokemon', entry.id]" [state]="detailNavState">
+                  <app-pokemon-card
+                    [id]="entry.id"
+                    [name]="entry.name"
+                    [artworkUrl]="entry.artworkUrl"
+                    [types]="entry.types"
+                  />
+                </a>
+              }
+            </div>
+          } @else if (activeType()) {
+            <app-state-screen
+              [title]="emptyTypeTitle()"
+              message="None of your favourites have this Type."
+              actionLabel="Show all"
+              (action)="onTypePick(null)"
+            />
+          } @else {
+            <app-state-screen
+              title="No matches"
+              [message]="'Nothing found for &quot;' + query() + '&quot; in your favourites.'"
+              actionLabel="Clear search"
+              (action)="clearSearch()"
+            />
+          }
         }
       }
       @default {

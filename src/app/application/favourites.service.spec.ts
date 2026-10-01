@@ -202,4 +202,65 @@ describe('FavouritesService', () => {
 
     expect(reads).toBe(1);
   });
+
+  describe('narrowing the saved set', () => {
+    async function seeded(): Promise<FavouritesService> {
+      const store = new InMemoryFavouritesStore();
+      await store.writeAll([
+        { id: 6, name: 'Charizard', artworkUrl: 'art/6.png', types: ['fire', 'flying'] },
+        { id: 25, name: 'Pikachu', artworkUrl: 'art/25.png', types: ['electric'] },
+        { id: 7, name: 'Squirtle', artworkUrl: 'art/7.png', types: ['water'] },
+      ]);
+      TestBed.configureTestingModule({
+        providers: [FavouritesService, { provide: FAVOURITES_STORE, useValue: store }],
+      });
+      const favourites = TestBed.inject(FavouritesService);
+      await favourites.load();
+      return favourites;
+    }
+
+    it('keeps only the entries that have the Type, in either slot', async () => {
+      const favourites = await seeded();
+
+      expect(favourites.byType('fire').map((e) => e.id)).toEqual([6]);
+      expect(favourites.byType('flying').map((e) => e.id)).toEqual([6]);
+    });
+
+    it('returns nothing for a Type none of the saved entries have', async () => {
+      const favourites = await seeded();
+
+      expect(favourites.byType('ghost')).toEqual([]);
+    });
+
+    it('searches the saved entries by name, ignoring case', async () => {
+      const favourites = await seeded();
+
+      expect(favourites.search('PIKA').map((e) => e.id)).toEqual([25]);
+    });
+
+    it('searches the saved entries by number', async () => {
+      const favourites = await seeded();
+
+      expect(favourites.search('25').map((e) => e.id)).toEqual([25]);
+    });
+
+    it('returns every saved entry for a blank search', async () => {
+      const favourites = await seeded();
+
+      expect(favourites.search('   ')).toHaveLength(3);
+    });
+
+    it('follows the saved set as it changes', async () => {
+      const favourites = await seeded();
+
+      await favourites.toggle({
+        id: 9,
+        name: 'Blastoise',
+        artworkUrl: 'art/9.png',
+        types: ['water'],
+      });
+
+      expect(favourites.byType('water').map((e) => e.id)).toEqual([7, 9]);
+    });
+  });
 });

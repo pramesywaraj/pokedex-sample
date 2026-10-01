@@ -1,6 +1,8 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
 import { FavouriteEntry } from '../domain/favourite-entry';
+import { PokemonTypeName } from '../domain/pokemon-type-name';
 import { FAVOURITES_STORE } from '../data/favourites/favourites-store';
+import { matchesQuery } from './matches-query';
 
 /** Lifecycle of reading the saved set from the store on first use. */
 export type FavouritesStatus = 'idle' | 'loading' | 'ready' | 'error';
@@ -63,6 +65,25 @@ export class FavouritesService {
   /** True when the given entry id is currently saved. */
   isFavourite(id: number): boolean {
     return this._entries().some((entry) => entry.id === id);
+  }
+
+  /**
+   * The saved entries that have the given Type in either slot. It reads the
+   * Types stored with each Favourite, so filtering never fetches.
+   */
+  byType(type: PokemonTypeName): FavouriteEntry[] {
+    return this._entries().filter((entry) => entry.types.includes(type));
+  }
+
+  /**
+   * The saved entries whose name or number matches the text. It only looks at
+   * the saved set, and a blank query leaves the whole set in place.
+   */
+  search(text: string): FavouriteEntry[] {
+    if (text.trim().length === 0) {
+      return this._entries();
+    }
+    return this._entries().filter((entry) => matchesQuery(entry, text));
   }
 
   /**

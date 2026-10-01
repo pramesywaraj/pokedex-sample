@@ -61,7 +61,7 @@ src/app/
     cache/       #   Cache seam + Ionic Storage impl (single-flight, versioned)
     stores/      #   FavouritesStore — separate store from the cache
     repository/  #   PokemonRepository — fetch-or-reuse boundary
-  application/   # APPLICATION floor — signal services: index, feed, favourites, network, detail (+ sources/)
+  application/   # APPLICATION floor — signal services: index, feed, favourites, network, detail (+ sources/, matchesQuery)
   features/      # PRESENTATION floor — browse/ detail/ favourites/ page-not-found/ (pages + feature-local components)
   shared/ui/     # reusable primitives — PokemonCard, SpriteImage, TypeBadge, StatBar, Skeleton*, PokéBall, StateScreen
   core/          # app-wide singletons — interceptors (retry-backoff, error-normalise), DI tokens, boot splash dismissal
@@ -243,7 +243,8 @@ cancelling obsolete requests.
   (`browse | type | search`) and the current items + status as signals, delegating to the
   right `PokemonSource`. Switching mode calls `reset()` then `loadNext()`.
 - **`FavouritesService`** — a `favourites` signal backed by `FavouritesStore`; `add/remove`,
-  `isFavourite(id)`, and `byType(type)` for the Favourites filter (types are stored, no fetch).
+  `isFavourite(id)`, `byType(type)` for the Favourites filter (types are stored, no fetch), and
+  `search(text)` for the name/number search within the saved set (local only).
 - **`NetworkService`** — an `online` signal from the platform (Capacitor Network / `navigator.onLine`)
   driving the offline state + auto-recover (NFR-3).
 - **`DetailService`** — owns a **single detail screen**: it is **provided per `DetailPage`
