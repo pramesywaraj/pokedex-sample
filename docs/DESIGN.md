@@ -155,7 +155,9 @@ read as empty). Within a row, cards **stretch to fill** the width, with fixed in
   below. On **≥768** it becomes a **two-pane split**: the Type-colour hero (artwork, name, number,
   pills, back/favourite — larger artwork, extra Poké Ball highlights) on the **left**, the tabs +
   active tab body on the **right** where the content sits **directly on the white panel** (no inner
-  card). On **desktop** that 768 two-pane is a **centred floating card** on a neutral canvas.
+  card). Wider than 768 (so on desktop) that two-pane is a **centred floating card** on a neutral
+  canvas, capped at 768 like the rest of the content. The app is light-only, so there is no dark
+  variant to verify.
 - **Navigation:** full-width bottom tab bar (Browse · Favourites).
 
 ---
