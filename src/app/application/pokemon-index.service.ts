@@ -2,6 +2,7 @@ import { Injectable, computed, inject, signal } from '@angular/core';
 import { PokemonSummary } from '../domain/pokemon-summary';
 import { PokemonTypeName } from '../domain/pokemon-type-name';
 import { PokemonRepository, TypeIndex } from '../data/repository/pokemon.repository';
+import { matchesQuery } from './matches-query';
 
 /** Neighbour ids either side of a position, missing at the ends of the list. */
 export interface Neighbours {
@@ -147,12 +148,9 @@ export class PokemonIndexService {
    * substring.
    */
   search(text: string): PokemonSummary[] {
-    const query = text.trim().toLowerCase();
-    if (query.length === 0) {
+    if (text.trim().length === 0) {
       return [];
     }
-    return this._items().filter(
-      (item) => item.name.toLowerCase().includes(query) || String(item.id).includes(query),
-    );
+    return this._items().filter((item) => matchesQuery(item, text));
   }
 }
