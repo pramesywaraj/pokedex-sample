@@ -16,8 +16,9 @@ ion-skeleton-text {
   --border-radius: 8px;
 }
 
+// Matches the real hero's top inset, so the skeleton doesn't shift as it swaps.
 .hero {
-  padding: var(--pkx-space-16);
+  padding: calc(var(--pkx-space-16) + var(--pkx-safe-top)) var(--pkx-space-16) var(--pkx-space-16);
 }
 
 .header-row {

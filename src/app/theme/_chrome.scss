@@ -3,6 +3,9 @@ ion-tabs ion-title {
   font-weight: var(--pkx-text-detail-name-weight);
 }
 
+// Ionic already pads the tab bar by the bottom safe area inset, so the row of
+// buttons clears the home indicator while the bar's background still reaches
+// the screen edge. Nothing to add here, it just must not be padded away.
 ion-tab-bar {
   --background: var(--pkx-bg);
   --color: var(--pkx-disabled);

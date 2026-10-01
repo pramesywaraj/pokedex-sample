@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- The brand accent. One value for the launcher icon field and the splash field,
+         which the design keeps identical so the icon hands off into the boot cover. -->
+    <color name="brand_accent">#DC0A2D</color>
+</resources>

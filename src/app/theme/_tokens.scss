@@ -26,6 +26,14 @@
   --pkx-space-32: 32px;
   --pkx-space-40: 40px;
 
+  // --- Device safe areas --------------------------------------
+  // Ionic fills these from the platform insets, and they come out 0 on the web.
+  // A surface that bleeds under the status bar or the home indicator pads its
+  // contents by them, so the colour still reaches the edge but nothing lands
+  // under the clock or the gesture bar.
+  --pkx-safe-top: var(--ion-safe-area-top, 0px);
+  --pkx-safe-bottom: var(--ion-safe-area-bottom, 0px);
+
   // --- Radius -------------------------------------------------
   --pkx-radius-card: 16px;
   --pkx-radius-sheet: 24px; // header / bottom sheet

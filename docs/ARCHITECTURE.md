@@ -392,6 +392,28 @@ Interceptors (retry-backoff, error-normalise) are unit-tested directly. E2E is d
   (`@color/ic_launcher_background`), which fills its layer whatever the mask does, and the
   foreground master already sits the ball at 62% — inside the 66% a mask is guaranteed to spare.
   Re-run the script after editing a master.
+- **The native splash is theme-driven, not an image.** Android 12 and up draw the launch screen
+  themselves from a background colour and one centred icon, and `core-splashscreen` back-ports
+  exactly that screen to the versions below, so a full-bleed splash bitmap is never rendered on
+  any version we support — the generated per-density `splash.png` files the Capacitor template
+  ships are gone with it, along with `androidScaleType`, which only the legacy fallback reads.
+  `AppTheme.NoActionBarLaunch` names the field (`@color/brand_accent`) and the hero ball
+  (`drawable/splash_icon.xml`, drawn at the same 128 units the web overlay fades in with, so the
+  hand-off doesn't resize it). The wordmark and the subtitle the design asks for can't live on a
+  platform launch screen, so they arrive with the overlay in `index.html` a few hundred ms later,
+  over the same field and the same ball — one cover, drawn by two mechanisms.
+- **Safe areas come from the platform, not from a plugin.** Ionic fills `--ion-safe-area-*` from
+  the WebView's `env(safe-area-inset-*)`, and `theme/_tokens.scss` re-exports the two we use as
+  `--pkx-safe-top` / `--pkx-safe-bottom`. Ionic already pads the tab bar and the first toolbar of
+  a header, so what needs doing by hand is the Detail hero, which has no toolbar: the Type panel
+  bleeds to the top edge and its header row pads down past the status bar. Targeting SDK 36 means
+  Android 15 and up enforce edge-to-edge, so the WebView is under the status bar and the insets
+  are real; `setOverlaysWebView` is a no-op there and we don't call it.
+- **The status bar content style follows what is behind it.** `StatusBarService` sits over a
+  `@capacitor/status-bar` seam and no-ops on the web. Detail asks for the colour its hero Type's
+  label calls for, white over Dragon purple and black over Electric yellow, and hands the bar back
+  to dark icons for the white app canvas when the Trainer leaves. The launch theme starts white,
+  because the boot field is brand red, and `main.ts` switches to dark once the cover is down.
 - No secrets/API keys (PokeAPI is open). Base URL in an environment file.
 - **Persistence:** Ionic Storage (IndexedDB) on web/desktop and native in v1 — no extra setup;
   an optional native SQLite driver is a later hardening step (§4a, [ADR 0003](./adr/0003-async-cache-seam.md)).

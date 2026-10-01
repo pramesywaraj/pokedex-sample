@@ -82,6 +82,18 @@ rewritten. Don't run `@capacitor/assets` over these — it insets the adaptive l
 breaks a full-bleed background; see
 [ARCHITECTURE → Build & run](docs/ARCHITECTURE.md#10-build--run).
 
+## The native splash
+
+Android draws the launch screen itself — a background colour and one centred icon, nothing else —
+and `core-splashscreen` gives the same screen to the versions that predate it. So the native half
+of the boot cover is two resources under `android/app/src/main/res/`: `@color/brand_accent` for
+the red field and `drawable/splash_icon.xml` for the hero Poké Ball, both named by
+`AppTheme.NoActionBarLaunch` in `values/styles.xml`.
+
+The wordmark, the subtitle and the Poké Ball watermarks arrive a moment later with the web
+overlay in `src/index.html`, which draws the same field and the same ball at the same size, so the
+hand-off reads as one cover rather than two. Change the ball and both need the same edit.
+
 ## Run on iOS
 
 Not wired up yet — no iOS platform has been added. The app code is platform-agnostic, so this is a

@@ -31,9 +31,10 @@
   font-size: 24px;
 }
 
+// The mystery panel bleeds to the top edge the same way the Type hero does.
 .header-row {
   position: relative;
-  padding: var(--pkx-space-8) var(--pkx-space-16) 0;
+  padding: calc(var(--pkx-space-8) + var(--pkx-safe-top)) var(--pkx-space-16) 0;
 }
 
 .top-info {
@@ -96,7 +97,8 @@
   flex-direction: column;
   align-items: center;
   gap: var(--pkx-space-12);
-  padding: var(--pkx-space-32) var(--pkx-space-24) var(--pkx-space-40);
+  padding: var(--pkx-space-32) var(--pkx-space-24)
+    calc(var(--pkx-space-40) + var(--pkx-safe-bottom));
   background: var(--pkx-bg);
   border-radius: var(--pkx-radius-sheet) var(--pkx-radius-sheet) 0 0;
   text-align: center;

@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    The hero Poké Ball for the Android 12 launch screen, which draws its own
+    icon on the theme's background instead of showing drawable/splash.png.
+
+    The 288 viewport is the canvas Android lays a splash icon out in, and the
+    ball is drawn at 128 of it, the same size as the one the web overlay fades
+    in with, so the hand-off from native to WebView doesn't resize it.
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="288dp"
+    android:height="288dp"
+    android:viewportWidth="288"
+    android:viewportHeight="288">
+
+    <group>
+        <clip-path android:pathData="M80,144a64,64 0 1,0 128,0a64,64 0 1,0 -128,0z" />
+        <path
+            android:fillColor="@color/brand_accent"
+            android:pathData="M80,144a64,64 0 1,0 128,0a64,64 0 1,0 -128,0z" />
+        <path
+            android:fillColor="#FFFFFF"
+            android:pathData="M80,144h128v64h-128z" />
+        <path
+            android:fillColor="#22222E"
+            android:pathData="M80,138h128v12h-128z" />
+    </group>
+
+    <path
+        android:fillColor="#22222E"
+        android:pathData="M121,144a23,23 0 1,0 46,0a23,23 0 1,0 -46,0z" />
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M130,144a14,14 0 1,0 28,0a14,14 0 1,0 -28,0z" />
+
+    <!-- The outline keeps the ball's red top off the red field behind it. -->
+    <path
+        android:pathData="M84,144a60,60 0 1,0 120,0a60,60 0 1,0 -120,0z"
+        android:strokeColor="#22222E"
+        android:strokeWidth="8" />
+</vector>

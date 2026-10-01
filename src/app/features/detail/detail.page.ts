@@ -17,6 +17,7 @@ import { DetailService } from '../../application/detail.service';
 import { FavouritesService } from '../../application/favourites.service';
 import { NetworkService } from '../../application/network.service';
 import { PokemonIndexService } from '../../application/pokemon-index.service';
+import { StatusBarService } from '../../application/status-bar.service';
 import { ErrorState } from '../../shared/ui/error-state/error-state';
 import { PokeballBackdrop } from '../../shared/ui/pokeball-backdrop/pokeball-backdrop';
 import { SkeletonDetail } from '../../shared/ui/skeleton-detail/skeleton-detail';
@@ -25,6 +26,7 @@ import { AboutTab } from './about-tab/about-tab';
 import { DetailHeader } from './detail-header/detail-header';
 import { DetailTab, DetailTabs } from './detail-tabs/detail-tabs';
 import { EvolutionTab } from './evolution-tab/evolution-tab';
+import { heroStatusBarContent } from './hero-status-bar';
 import { NotFoundDetail } from './not-found-detail/not-found-detail';
 import { StatsTab } from './stats-tab/stats-tab';
 
@@ -66,6 +68,7 @@ export class DetailPage implements OnInit {
   protected readonly favourites = inject(FavouritesService);
   protected readonly index = inject(PokemonIndexService);
   protected readonly network = inject(NetworkService);
+  private readonly statusBar = inject(StatusBarService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly location = inject(Location);
@@ -129,6 +132,11 @@ export class DetailPage implements OnInit {
       this.detail.prefetchNeighbours(prev, next);
     });
 
+    // The Type hero runs full bleed under the status bar, so the clock and icons
+    // follow whatever colour is behind them, re-reading it as the Pokémon lands
+    // and as a swipe rebinds this screen to its neighbour.
+    effect(() => this.claimStatusBar());
+
     // When the connection returns, retry whatever the detail couldn't finish
     // loading while we were offline, so the Trainer doesn't have to tap Retry.
     this.network.onReconnect(() => {
@@ -147,6 +155,24 @@ export class DetailPage implements OnInit {
     });
     void this.favourites.load();
     void this.index.load();
+  }
+
+  /**
+   * Takes the status bar back whenever this screen comes to the front, which a
+   * stacked evolution jump needs on the way back, because the hero behind the
+   * clock is this Pokémon's again and not the one that was just popped.
+   */
+  ionViewWillEnter(): void {
+    this.claimStatusBar();
+  }
+
+  /**
+   * Hands the status bar back to the white app canvas. Ionic runs this before
+   * the arriving screen's enter, so a Detail opening on top of this one still
+   * gets the last word on its own colour.
+   */
+  ionViewWillLeave(): void {
+    this.statusBar.resetToCanvas();
   }
 
   /** Toggles the current Pokémon in the saved set (optimistic, reverts on write failure). */
@@ -265,6 +291,11 @@ export class DetailPage implements OnInit {
   private readNavEnabledFromHistory(): boolean {
     const state = history.state as { browseNav?: boolean } | null;
     return state?.browseNav !== false;
+  }
+
+  /** Points the status bar at whatever this screen is currently showing. */
+  private claimStatusBar(): void {
+    this.statusBar.setContentColour(heroStatusBarContent(this.detail.status(), this.primaryType()));
   }
 
   /** Replaces the URL with the neighbour's, carrying the nav enabled flag forward. */

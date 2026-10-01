@@ -21,12 +21,14 @@
   font-size: 24px;
 }
 
+// The Type panel bleeds to the top edge, so Back and the heart are pushed down
+// past the status bar rather than letterboxing the panel below it.
 .header-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
   min-height: 40px;
-  padding: var(--pkx-space-8) var(--pkx-space-16) 0;
+  padding: calc(var(--pkx-space-8) + var(--pkx-safe-top)) var(--pkx-space-16) 0;
   margin-inline: calc(var(--pkx-space-8) * -1);
 }
 
