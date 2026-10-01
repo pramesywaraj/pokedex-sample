@@ -3,7 +3,7 @@
 <div class="chev-row">
   <button
     type="button"
-    class="chev"
+    class="chev chev-prev"
     [class.is-disabled]="prevDisabled()"
     [disabled]="prevDisabled()"
     aria-label="Previous Pokémon"
@@ -18,7 +18,7 @@
 
   <button
     type="button"
-    class="chev"
+    class="chev chev-next"
     [class.is-disabled]="nextDisabled()"
     [disabled]="nextDisabled()"
     aria-label="Next Pokémon"
@@ -31,4 +31,3 @@
     }
   </button>
 </div>
-
