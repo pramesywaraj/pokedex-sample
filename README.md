@@ -1,59 +1,95 @@
-# Pokedex
+# Pokédex
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 22.2.0.
+A frontend-only Pokédex built with Angular, Ionic, and Capacitor, running from the open
+[PokeAPI](https://pokeapi.co/). Browse the dex, search it, filter by Type, open a Pokémon's detail
+with stats and evolutions, and save favourites that survive a restart. One codebase ships to the
+web and wraps as a native app.
 
-## Development server
+## Where the thinking lives
 
-To start a local development server, run:
+| Doc | What it covers |
+|---|---|
+| [docs/PRD.md](docs/PRD.md) | Use cases, acceptance criteria, the state matrix |
+| [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | Tech stack, layers, domain models, caching |
+| [docs/DESIGN.md](docs/DESIGN.md) | Visual and interaction design |
+| [docs/adr/](docs/adr/) | The point decisions, with rationale |
+| [CONTEXT.md](CONTEXT.md) | Glossary — the words this project uses |
 
-```bash
-ng serve
-```
+## Prerequisites
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+- **Node 22** — `.nvmrc` pins 22.23.3. Run `nvm use` before anything else.
+- `npm ci` to install.
 
-## Code scaffolding
-
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
-
-```bash
-ng generate component component-name
-```
-
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
-
-```bash
-ng generate --help
-```
-
-## Building
-
-To build the project run:
+## Run on the web
 
 ```bash
-ng build
+nvm use
+npm ci
+npm start
 ```
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
+The dev server comes up on <http://localhost:4200> and reloads on save.
 
-## Running unit tests
-
-To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
+On macOS the dev server can die with `EMFILE`, because the default `kern.maxfilesperproc` of 10240
+is below what the file watcher wants. If you hit it, poll instead of watching:
 
 ```bash
-ng test
+npm start -- --poll 3000
 ```
 
-## Running end-to-end tests
+## Run on Android
 
-For end-to-end (e2e) testing, run:
+Capacitor wraps the same web build, so there is no second codebase — `android/` is committed and
+the web bundle is copied into it on each sync.
+
+You need, on top of the web prerequisites:
+
+- **JDK 21** — set `JAVA_HOME` to it. Not the newest JDK: the project's Gradle 8.14.3 predates
+  JDK 25 support, and its AGP 8.13.0 needs 17 or above.
+- **Android SDK** with `platform-tools`, `platforms;android-36`, and `build-tools;36.0.0`, its
+  licences accepted, and `ANDROID_HOME` pointing at the SDK root.
+- A **real device** with developer options and USB debugging on, or an emulator. Check it is
+  visible with `adb devices` — a device listed as `unauthorized` means the prompt on the phone
+  has not been accepted yet.
+
+Then build the web bundle, copy it into the Android project, and launch:
 
 ```bash
-ng e2e
+npm run run:android
 ```
 
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
+That runs the production build, `npx cap sync android`, and `npx cap run android` in order. Use
+`npm run sync:android` on its own to refresh the native project without launching — handy before
+opening `android/` in Android Studio.
 
-## Additional Resources
+The app's minimum is Android 7.0 (minSdk 24), and it compiles and targets SDK 36.
 
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+> **Rebuild before you test.** `npx cap run android` does not run the Angular build, so a stale
+> `dist/` ships the wrong bundle to the device. The `run:android` script exists so you cannot
+> forget that step.
+
+## Run on iOS
+
+Not wired up yet — no iOS platform has been added. The app code is platform-agnostic, so this is a
+toolchain step rather than a code one.
+
+## Tests, linting, formatting
+
+| Command | What it does |
+|---|---|
+| `npm test` | unit tests once, with Vitest |
+| `npm run test:watch` | the same, in watch mode |
+| `npm run lint` | ESLint, including the layering check |
+| `npm run format` | Prettier write (`npm run format:check` to verify) |
+
+The lint step enforces the architecture's layering rule — presentation may reach down into
+application and data, never the other way — so a stray import fails the build rather than quietly
+rotting.
+
+## Build for production
+
+```bash
+npm run build
+```
+
+Output lands in `dist/pokedex/browser`.

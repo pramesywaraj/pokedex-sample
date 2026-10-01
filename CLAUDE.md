@@ -56,8 +56,13 @@ versions pinned at scaffold.)*
   | `npm test` | unit tests once, Vitest (`npm run test:watch` to watch) |
   | `npm run lint` | ESLint — includes the layering check |
   | `npm run format` | Prettier write (`format:check` to verify) |
+  | `npm run sync:android` | production build, then `npx cap sync android` |
+  | `npm run run:android` | that, then launch on a connected device |
 
-  Capacitor wraps the same web build (`npx cap sync`); no native platform is added yet.
+  Capacitor wraps the same web build — `android/` is added and committed; iOS is not added yet.
+  The Android build needs JDK 21 and the Android SDK (compileSdk 36, minSdk 24); the pins and the
+  reasoning are in [ARCHITECTURE → Build & run](docs/ARCHITECTURE.md#10-build--run), the run steps
+  in the [README](README.md#run-on-android).
 
   *On macOS, `ng serve` can die with `EMFILE` because `kern.maxfilesperproc` (10240) is below what
   the file watcher wants. Use `npm start -- --poll 3000` if you hit it.*

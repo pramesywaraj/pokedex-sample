@@ -10,7 +10,9 @@
     "test:watch": "ng test",
     "lint": "ng lint",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "sync:android": "npm run build && npx cap sync android",
+    "run:android": "npm run sync:android && npx cap run android"
   },
   "private": true,
   "packageManager": "npm@10.9.9",

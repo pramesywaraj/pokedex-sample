@@ -369,7 +369,21 @@ Interceptors (retry-backoff, error-normalise) are unit-tested directly. E2E is d
 ## 10. Build & run
 
 - One Angular + Ionic codebase. **Web:** `ng build` / `ionic serve`. **Native:** Capacitor
-  wraps the web build — `npx cap add ios|android`, `npx cap sync`, open in Xcode/Android Studio.
+  wraps the web build — `npx cap sync`, then run or open the platform project. Android is added;
+  iOS is not yet. `npm run sync:android` refreshes the native project from a fresh web build, and
+  `npm run run:android` does that and launches on a device. Neither `cap sync` nor `cap run` builds
+  the web bundle on its own, so the scripts chain `npm run build` first — a stale `dist/` otherwise
+  ships silently to the device.
+- **Android toolchain (pinned by the generated project):** AGP **8.13.0**, Gradle **8.14.3**,
+  compileSdk/targetSdk **36**, minSdk **24** (Android 7.0), built with **JDK 21**. JDK 21 is a
+  deliberate floor *and* ceiling: AGP 8.13 needs 17 or above, while Gradle 8.14.3 predates JDK 25
+  support — so the newest JDK is the wrong choice here, and the version is worth stating rather
+  than leaving to whatever `java` happens to resolve to.
+- **`android/` is committed, not regenerated.** The directory is generated once by `cap add`, but
+  it then carries project-specific state — the Gradle version pins above, the manifest, and the
+  resources that native branding writes into. Re-running `cap add` to recreate it would discard
+  those, and keeping it in the repo means a native build is reproducible from a clean clone and
+  any change to it shows up in review as an ordinary diff.
 - No secrets/API keys (PokeAPI is open). Base URL in an environment file.
 - **Persistence:** Ionic Storage (IndexedDB) on web/desktop and native in v1 — no extra setup;
   an optional native SQLite driver is a later hardening step (§4a, [ADR 0003](./adr/0003-async-cache-seam.md)).

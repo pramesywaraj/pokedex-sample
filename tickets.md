@@ -243,11 +243,11 @@ project pins AGP **8.13.0**, Gradle **8.14.3**, compileSdk/targetSdk **36**, min
 newest JDK is the wrong choice here.
 
 - [x] `@capacitor/android@8.5.2` installed (matching `@capacitor/core`) and `npx cap add android` run
-- [ ] JDK 21 + Android SDK (`platform-tools`, `platforms;android-36`, `build-tools;36.0.0`), licences accepted, `JAVA_HOME` / `ANDROID_HOME` exported
-- [ ] `npx cap run android` builds and launches on a **real device** over USB debugging
-- [ ] `android/` is committed, with the reasoning recorded in ARCHITECTURE §10
-- [ ] npm scripts for the native sync/build; README documents how to run **web and Android** (PRD §10); the CLAUDE.md commands table drops "no native platform is added yet"
-- [ ] Hardware back verified on the device against the ticket-18 rules
+- [x] JDK 21 + Android SDK (`platform-tools`, `platforms;android-36`, `build-tools;36.0.0`), licences accepted, `JAVA_HOME` / `ANDROID_HOME` exported
+- [x] `npx cap run android` builds and launches on a **real device** over USB debugging
+- [x] `android/` is committed, with the reasoning recorded in ARCHITECTURE §10
+- [x] npm scripts for the native sync/build; README documents how to run **web and Android** (PRD §10); the CLAUDE.md commands table drops "no native platform is added yet"
+- [x] Hardware back verified on the device against the ticket-18 rules
 
 ## 20 · Native brand & chrome
 
