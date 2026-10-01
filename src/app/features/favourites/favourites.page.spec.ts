@@ -107,7 +107,9 @@ describe('FavouritesPage', () => {
     const fixture = await render([charizard]);
     const field = el(fixture).querySelector('input');
 
-    expect(field?.getAttribute('placeholder')).toBe('Search your favourites Pokémon Name or Dex Number');
+    expect(field?.getAttribute('placeholder')).toBe(
+      'Search your favourites Pokémon Name or Dex Number',
+    );
   });
 
   it('narrows the grid to the picked Type', async () => {

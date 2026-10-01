@@ -57,5 +57,8 @@
 }
 
 @media (min-width: 768px) {
-  .row { flex-wrap: wrap; overflow-x: visible; }
+  .row {
+    flex-wrap: wrap;
+    overflow-x: visible;
+  }
 }
