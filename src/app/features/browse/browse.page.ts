@@ -11,6 +11,7 @@ import {
   IonToolbar,
 } from '@ionic/angular';
 import { FeedService } from '../../application/feed.service';
+import { NetworkService } from '../../application/network.service';
 import { PokemonIndexService } from '../../application/pokemon-index.service';
 import { PokemonTypeName } from '../../domain/pokemon-type-name';
 import { ErrorState } from '../../shared/ui/error-state/error-state';
@@ -49,9 +50,20 @@ import { TypeFilter } from '../../shared/ui/type-filter/type-filter';
 export class BrowsePage implements OnInit {
   protected readonly feed = inject(FeedService);
   protected readonly index = inject(PokemonIndexService);
+  protected readonly network = inject(NetworkService);
 
   /** Placeholder cells for the first load skeleton grid. */
   protected readonly skeletons = Array.from({ length: 12 });
+
+  /**
+   * When the device drops offline before the grid has anything to show, swap
+   * the main view out for the offline state so the Trainer isn't staring at a
+   * stuck skeleton. Once cards are on screen we keep them visible, so a blip
+   * mid scroll doesn't blank what's already been loaded.
+   */
+  protected readonly showOffline = computed(
+    () => !this.network.online() && this.feed.items().length === 0,
+  );
 
   /**
    * Nav between neighbouring Pokémon is only meaningful when the grid is the
@@ -63,6 +75,19 @@ export class BrowsePage implements OnInit {
   }));
 
   @ViewChild(SearchBar) private searchBar?: SearchBar;
+
+  constructor() {
+    // When the connection returns, quietly retry whatever couldn't land while
+    // we were offline, the index first since Browse leans on it for everything.
+    this.network.onReconnect(() => {
+      if (this.index.error()) {
+        void this.index.retry();
+      }
+      if (this.feed.status() === 'error' || this.feed.items().length === 0) {
+        this.retryFirstPage();
+      }
+    });
+  }
 
   ngOnInit(): void {
     if (this.feed.items().length === 0) {

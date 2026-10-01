@@ -10,7 +10,12 @@
 
     <app-type-filter [active]="feed.activeType()" (pick)="onTypePick($event)" />
 
-    @if (index.error()) {
+    @if (showOffline()) {
+      <app-state-screen
+        title="You're offline"
+        message="Reconnect and we'll pick up where you left off."
+      />
+    } @else if (index.error()) {
       <app-state-screen
         title="Search unavailable"
         message="We couldn't load the search index. Try again in a moment."
