@@ -1,0 +1,34 @@
+@let isLoading = loading();
+
+<div class="chev-row">
+  <button
+    type="button"
+    class="chev"
+    [class.is-disabled]="prevDisabled()"
+    [disabled]="prevDisabled()"
+    aria-label="Previous Pokémon"
+    (click)="onPrev()"
+  >
+    @if (isLoading) {
+      <ion-spinner name="crescent" aria-hidden="true"></ion-spinner>
+    } @else {
+      <ion-icon name="chevron-back" aria-hidden="true"></ion-icon>
+    }
+  </button>
+
+  <button
+    type="button"
+    class="chev"
+    [class.is-disabled]="nextDisabled()"
+    [disabled]="nextDisabled()"
+    aria-label="Next Pokémon"
+    (click)="onNext()"
+  >
+    @if (isLoading) {
+      <ion-spinner name="crescent" aria-hidden="true"></ion-spinner>
+    } @else {
+      <ion-icon name="chevron-forward" aria-hidden="true"></ion-icon>
+    }
+  </button>
+</div>
+

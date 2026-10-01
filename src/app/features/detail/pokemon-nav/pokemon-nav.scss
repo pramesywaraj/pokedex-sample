@@ -1,0 +1,43 @@
+:host {
+  display: contents;
+  color: var(--pkx-on-type);
+}
+
+.chev-row {
+  position: absolute;
+  top: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 0 6vw;
+}
+
+.chev {
+  width: 36px;
+  height: 36px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.3);
+  color: rgba(255, 255, 255, 0.95);
+  box-shadow: var(--pkx-shadow-soft);
+  cursor: pointer;
+  transform: translateY(-50%);
+  transition: opacity 120ms ease;
+}
+
+.chev ion-icon {
+  font-size: 20px;
+}
+
+.chev ion-spinner {
+  width: 18px;
+  height: 18px;
+}
+
+.chev.is-disabled {
+  cursor: default;
+  opacity: 0.45;
+}
