@@ -418,7 +418,7 @@ The Figma file's page structure and the order we build it.
 | 6 | **All states** — skeletons, empties, errors, offline, 404 | §6.1 State Matrix | **built** — Browse loading (skeleton grid) / error / offline / load-more error · Search "no matches" / "unavailable" · Detail 404 / SkeletonDetail / "does not evolve" · Favourites empty / "No [Type] favourites" |
 | 7 | **Splash boot cover** (red-immersive · 375 / 1280) | app startup | **built** — hero Poké Ball + wordmark + "Warming up the Pokédex…"; spinning hero ball (web); ~600ms + fade exit |
 | 8 | (optional) prototype wiring for a click-through of §7 | flows | pending |
-| 9 | **App icon** — 1024 master + Android adaptive layers (foreground / background) | native packaging (ticket 18) | pending |
+| 9 | **App icon** — 1024 master + Android adaptive layers (foreground / background) | native packaging (ticket 20) | **built** — masters in `assets/`, Android resources via `npm run icons` |
 
 ---
 

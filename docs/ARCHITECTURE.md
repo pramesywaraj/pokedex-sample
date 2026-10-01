@@ -384,6 +384,14 @@ Interceptors (retry-backoff, error-normalise) are unit-tested directly. E2E is d
   resources that native branding writes into. Re-running `cap add` to recreate it would discard
   those, and keeping it in the repo means a native build is reproducible from a clean clone and
   any change to it shows up in review as an ordinary diff.
+- **Launcher icons are rendered from `assets/icon-*.svg` by `npm run icons`**, not by
+  `@capacitor/assets`. That tool insets both adaptive layers by 16.7% to push a logo into the mask
+  safe zone, which is right for a logo on a plain field but wrong for ours: the background *is* the
+  brand field, so insetting it leaves transparent margins the launcher mask then crops into, and it
+  shrinks the ball to ~41% of the icon. Instead the background is a colour resource
+  (`@color/ic_launcher_background`), which fills its layer whatever the mask does, and the
+  foreground master already sits the ball at 62% — inside the 66% a mask is guaranteed to spare.
+  Re-run the script after editing a master.
 - No secrets/API keys (PokeAPI is open). Base URL in an environment file.
 - **Persistence:** Ionic Storage (IndexedDB) on web/desktop and native in v1 — no extra setup;
   an optional native SQLite driver is a later hardening step (§4a, [ADR 0003](./adr/0003-async-cache-seam.md)).

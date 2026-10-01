@@ -256,7 +256,7 @@ splash matching the web overlay, and a layout that respects the notch and the ho
 
 **Blocked by:** 19
 
-- [ ] App icon generated from the 1024 master per [DESIGN §6 AppIcon](docs/DESIGN.md), including the Android **adaptive icon** as two layers (foreground ball over flat red background)
+- [x] App icon generated from the 1024 master per [DESIGN §6 AppIcon](docs/DESIGN.md), including the Android **adaptive icon** as two layers (foreground ball over flat red background)
 - [ ] Native splash matching the web overlay (ticket 14), through the `@capacitor/splash-screen` config already in `capacitor.config.ts`
 - [ ] Safe areas per DESIGN §5 — the bottom tab bar clears the home indicator; the Detail Type hero stays full-bleed **under** the status bar with its contents inset
 - [ ] Status bar content style follows the hero Type's `label` (`@capacitor/status-bar`), so the clock stays legible over Electric yellow *and* Dragon purple

@@ -68,6 +68,20 @@ The app's minimum is Android 7.0 (minSdk 24), and it compiles and targets SDK 36
 > `dist/` ships the wrong bundle to the device. The `run:android` script exists so you cannot
 > forget that step.
 
+## The app icon
+
+The launcher icon is rendered from three SVG masters in `assets/` — `icon-only.svg` (the flat
+1024 master), plus `icon-foreground.svg` and `icon-background.svg` for Android's adaptive icon:
+
+```bash
+npm run icons
+```
+
+Edit a master, re-run that, and the per-density resources under `android/app/src/main/res/` are
+rewritten. Don't run `@capacitor/assets` over these — it insets the adaptive layers in a way that
+breaks a full-bleed background; see
+[ARCHITECTURE → Build & run](docs/ARCHITECTURE.md#10-build--run).
+
 ## Run on iOS
 
 Not wired up yet — no iOS platform has been added. The app code is platform-agnostic, so this is a

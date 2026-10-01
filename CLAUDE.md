@@ -56,6 +56,7 @@ versions pinned at scaffold.)*
   | `npm test` | unit tests once, Vitest (`npm run test:watch` to watch) |
   | `npm run lint` | ESLint — includes the layering check |
   | `npm run format` | Prettier write (`format:check` to verify) |
+  | `npm run icons` | re-render the Android launcher icons from `assets/` |
   | `npm run sync:android` | production build, then `npx cap sync android` |
   | `npm run run:android` | that, then launch on a connected device |
 

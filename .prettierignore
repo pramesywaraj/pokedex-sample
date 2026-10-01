@@ -4,6 +4,11 @@ node_modules/
 .angular/
 coverage/
 
+# Native projects — Capacitor generates these, and a sync fills them with the built web
+# bundle. Not ours to format.
+android/
+ios/
+
 # Lockfile
 package-lock.json
 
