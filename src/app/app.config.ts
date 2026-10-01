@@ -13,6 +13,7 @@ import { IonicStorageCache } from './data/cache/ionic-storage.cache';
 import { FAVOURITES_STORE } from './data/favourites/favourites-store';
 import { IonicStorageFavouritesStore } from './data/favourites/ionic-storage-favourites.store';
 import { errorNormaliseInterceptor } from './core/interceptors/error-normalise.interceptor';
+import { retryBackoffInterceptor } from './core/interceptors/retry-backoff.interceptor';
 import { routes } from './app.routes';
 
 export const appConfig: ApplicationConfig = {
@@ -20,7 +21,7 @@ export const appConfig: ApplicationConfig = {
     provideBrowserGlobalErrorListeners(),
     provideIonicAngular({}),
     provideRouter(routes),
-    provideHttpClient(withInterceptors([errorNormaliseInterceptor])),
+    provideHttpClient(withInterceptors([errorNormaliseInterceptor, retryBackoffInterceptor])),
     { provide: CACHE, useExisting: IonicStorageCache },
     { provide: FAVOURITES_STORE, useExisting: IonicStorageFavouritesStore },
     provideAppInitializer(() => applyCacheVersion(inject(CACHE))),
