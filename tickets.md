@@ -225,10 +225,10 @@ against the web build.
 
 **Blocked by:** 13, 14
 
-- [ ] `NetworkService` reads the **platform** online state via `@capacitor/network` on native and keeps `navigator.onLine` on web, behind the one unchanged `online` signal (NFR-3)
-- [ ] That closes a real gap: ARCHITECTURE §5 and ticket 13 both specified "Capacitor Network / `navigator.onLine`", but only the `navigator.onLine` half ever shipped — so the regression test is the one that would have caught it
-- [ ] Android hardware back honours ARCHITECTURE §7 — pops router history, falls back to `tabs/browse` on a cold deep-link (AC-2.16), exits from a tab root — wired **once at the app shell**, not per page
-- [ ] Unit tests cover both platforms behind the same seam, plus each back-button branch (history to pop · cold deep-link · tab root)
+- [x] `NetworkService` reads the **platform** online state via `@capacitor/network` on native and keeps `navigator.onLine` on web, behind the one unchanged `online` signal (NFR-3)
+- [x] That closes a real gap: ARCHITECTURE §5 and ticket 13 both specified "Capacitor Network / `navigator.onLine`", but only the `navigator.onLine` half ever shipped — so the regression test is the one that would have caught it
+- [x] Android hardware back honours ARCHITECTURE §7 — pops router history, falls back to `tabs/browse` on a cold deep-link (AC-2.16), exits from a tab root — wired **once at the app shell**, not per page
+- [x] Unit tests cover both platforms behind the same seam, plus each back-button branch (history to pop · cold deep-link · tab root)
 
 Like ticket 4, this one is **verified by unit tests** rather than fully demoable — there is no
 hardware back button in a browser, so that half is only observable once 19 lands.

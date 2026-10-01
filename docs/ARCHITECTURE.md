@@ -60,11 +60,12 @@ src/app/
     mappers/     #   pure DTO → domain functions
     cache/       #   Cache seam + Ionic Storage impl (single-flight, versioned)
     stores/      #   FavouritesStore — separate store from the cache
+    platform/    #   Connectivity seam + its browser / Capacitor Network adapters
     repository/  #   PokemonRepository — fetch-or-reuse boundary
-  application/   # APPLICATION floor — signal services: index, feed, favourites, network, detail (+ sources/, matchesQuery)
+  application/   # APPLICATION floor — signal services: index, feed, favourites, network, detail (+ sources/, matchesQuery, canPopHistory)
   features/      # PRESENTATION floor — browse/ detail/ favourites/ page-not-found/ (pages + feature-local components)
   shared/ui/     # reusable primitives — PokemonCard, SpriteImage, TypeBadge, StatBar, Skeleton*, PokéBall, StateScreen
-  core/          # app-wide singletons — interceptors (retry-backoff, error-normalise), DI tokens, boot splash dismissal
+  core/          # app-wide singletons — interceptors (retry-backoff, error-normalise), DI tokens, boot splash dismissal, hardware back
   theme/         # design tokens + the PokemonTypeName → colour map
 ```
 
@@ -145,6 +146,12 @@ export interface FavouritesStore {
   all(): Promise<Favourite[]>;
   add(f: Favourite): Promise<void>;
   remove(id: number): Promise<void>;
+}
+
+// How the app learns it is online — the platform's own network state inside a
+// native shell, the browser's online/offline events on the web (§5 NetworkService)
+export interface Connectivity {
+  watch(report: (online: boolean) => void): () => void;   // returns the teardown
 }
 ```
 
@@ -245,8 +252,11 @@ cancelling obsolete requests.
 - **`FavouritesService`** — a `favourites` signal backed by `FavouritesStore`; `add/remove`,
   `isFavourite(id)`, `byType(type)` for the Favourites filter (types are stored, no fetch), and
   `search(text)` for the name/number search within the saved set (local only).
-- **`NetworkService`** — an `online` signal from the platform (Capacitor Network / `navigator.onLine`)
-  driving the offline state + auto-recover (NFR-3).
+- **`NetworkService`** — an `online` signal from the platform, driving the offline state +
+  auto-recover (NFR-3). It reads a **`Connectivity` seam** (`data/platform/`) rather than the
+  browser directly, so the answer comes from the right place for the shell we're in:
+  `@capacitor/network` inside a native app, `navigator.onLine` + the window's online/offline
+  events on the web. The signal and everything above it are identical either way.
 - **`DetailService`** — owns a **single detail screen**: it is **provided per `DetailPage`
   instance** (not root), so evolution-jump pushes keep their own state while the cache stays
   app-wide. It orchestrates the fetches (`getPokemon` → read `speciesId` → `getSpecies` → lazy
@@ -313,6 +323,11 @@ export const routes: Routes = [
   from the header chevron, so it is wired once at the app shell rather than per page: it pops the
   router history, and on a cold deep-link with nothing to pop it goes to `tabs/browse` instead of
   exiting the app (the AC-2.16 fallback). From a tab root with nothing left to pop, it exits.
+  Both inputs ask the **same** `canPopHistory` rule, so they can't drift apart. `HardwareBackService`
+  **claims** the press from the shell at startup (`@capacitor/app`) — without that, Android steps the
+  WebView's own history and the router never sees it — and then reads it off Ionic's back-button queue
+  (`ionBackButton`) at a priority **above** the router outlet's own pop, so that never also fires and
+  double-navigates, and **below** overlays and menus, so an open sheet still closes on the first press.
   Because swipe **replaces** the URL, a Trainer who swiped 25 → 30 is one back press from Browse,
   not six.
 - **Navigate only via the Angular router** (never `window.location` / a hard `href` to an
