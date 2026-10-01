@@ -1,12 +1,13 @@
 :host {
-  display: block;
+  display: flex;
+  flex-direction: column;
   min-height: 100%;
 }
 
 .skeleton-detail {
   display: flex;
+  flex: 1;
   flex-direction: column;
-  min-height: 100%;
   background: var(--pkx-surface);
 }
 
@@ -103,4 +104,28 @@ ion-skeleton-text {
 
 .sk-line.short {
   width: 50%;
+}
+
+@media (min-width: 768px) {
+  .skeleton-detail {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    background: var(--pkx-bg);
+  }
+
+  .hero {
+    display: flex;
+    flex-direction: column;
+    background: var(--pkx-surface);
+  }
+
+  .sk-art {
+    margin: auto;
+  }
+
+  .sheet {
+    margin-top: 0;
+    padding-top: calc(var(--pkx-space-40) + var(--pkx-space-24));
+    border-radius: 0;
+  }
 }
