@@ -46,3 +46,6 @@ Thumbs.db
 
 # Design reference screenshots (not for the repo)
 docs/reference-image/
+
+# Vercel
+.vercel
