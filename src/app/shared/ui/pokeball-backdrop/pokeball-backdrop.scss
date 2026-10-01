@@ -27,3 +27,38 @@
   width: 132px;
   transform: rotate(31deg);
 }
+
+.wm-corner,
+.wm-mid {
+  display: none;
+}
+
+@media (min-width: 768px) {
+  .wm-top {
+    top: 16px;
+    right: 32px;
+    width: 130px;
+  }
+
+  .wm-bottom {
+    top: 33%;
+    left: 32px;
+    width: 88px;
+  }
+
+  .wm-corner {
+    display: block;
+    bottom: -44px;
+    left: -52px;
+    width: 190px;
+    transform: rotate(-18deg);
+  }
+
+  .wm-mid {
+    display: block;
+    top: 55%;
+    right: -26px;
+    width: 96px;
+    transform: rotate(12deg);
+  }
+}
