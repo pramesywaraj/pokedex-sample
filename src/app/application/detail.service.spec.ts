@@ -34,7 +34,6 @@ const species: Species = { category: 'Seed', description: 'A seed sleeps.', evol
 
 const evolution: EvolutionChain = { chainId: 1, steps: [] };
 
-/** A scripted repository: hands back or rejects the pokemon/species/evolution reads on cue. */
 class FakeRepository {
   pokemonOutcome: Pokemon | Error = pokemon(1);
   speciesOutcome: Species | Error = species;
@@ -42,16 +41,31 @@ class FakeRepository {
   pokemonCalls = 0;
   speciesCalls = 0;
   evolutionCalls = 0;
+  pokemonIds: number[] = [];
+  speciesIds: number[] = [];
+  readonly pokemonById = new Map<number, Pokemon | Error>();
+  private readonly held = new Set<number>();
+  private readonly pending: {
+    id: number;
+    resolve: (p: Pokemon) => void;
+    reject: (e: Error) => void;
+  }[] = [];
 
-  getPokemon(): Promise<Pokemon> {
+  getPokemon(id: number): Promise<Pokemon> {
     this.pokemonCalls++;
-    return this.pokemonOutcome instanceof Error
-      ? Promise.reject(this.pokemonOutcome)
-      : Promise.resolve(this.pokemonOutcome);
+    this.pokemonIds.push(id);
+    if (this.held.has(id)) {
+      return new Promise<Pokemon>((resolve, reject) => {
+        this.pending.push({ id, resolve, reject });
+      });
+    }
+    const outcome = this.pokemonById.get(id) ?? this.pokemonOutcome;
+    return outcome instanceof Error ? Promise.reject(outcome) : Promise.resolve(outcome);
   }
 
-  getSpecies(): Promise<Species> {
+  getSpecies(speciesId: number): Promise<Species> {
     this.speciesCalls++;
+    this.speciesIds.push(speciesId);
     return this.speciesOutcome instanceof Error
       ? Promise.reject(this.speciesOutcome)
       : Promise.resolve(this.speciesOutcome);
@@ -62,6 +76,19 @@ class FakeRepository {
     return this.evolutionOutcome instanceof Error
       ? Promise.reject(this.evolutionOutcome)
       : Promise.resolve(this.evolutionOutcome);
+  }
+
+  holdPokemon(id: number): void {
+    this.held.add(id);
+  }
+
+  resolvePokemon(id: number, value: Pokemon): void {
+    const i = this.pending.findIndex((p) => p.id === id);
+    if (i >= 0) {
+      const [p] = this.pending.splice(i, 1);
+      this.held.delete(id);
+      p.resolve(value);
+    }
   }
 }
 
@@ -158,5 +185,61 @@ describe('DetailService', () => {
     repo.evolutionOutcome = evolution;
     await detail.retryEvolution();
     expect(detail.evolutionStatus()).toBe('ready');
+  });
+
+  describe('prefetchNeighbours', () => {
+    it('warms both neighbours by fetching each pokemon and species', async () => {
+      await detail.load(2);
+      repo.pokemonCalls = 0;
+      repo.speciesCalls = 0;
+      repo.pokemonIds = [];
+      repo.speciesIds = [];
+      repo.pokemonById.set(1, pokemon(1, 1));
+      repo.pokemonById.set(3, pokemon(3, 3));
+      detail.prefetchNeighbours(1, 3);
+      await Promise.resolve();
+      await Promise.resolve();
+      expect(repo.pokemonIds).toEqual([1, 3]);
+      expect(repo.speciesIds).toEqual([1, 3]);
+    });
+
+    it('warms only the side that exists at the ends of the list', async () => {
+      await detail.load(1);
+      repo.pokemonCalls = 0;
+      repo.pokemonIds = [];
+      repo.pokemonById.set(2, pokemon(2, 2));
+      detail.prefetchNeighbours(undefined, 2);
+      await Promise.resolve();
+      expect(repo.pokemonIds).toEqual([2]);
+    });
+
+    it('does nothing when both neighbours are undefined', async () => {
+      await detail.load(1);
+      repo.pokemonCalls = 0;
+      detail.prefetchNeighbours(undefined, undefined);
+      await Promise.resolve();
+      expect(repo.pokemonCalls).toBe(0);
+    });
+
+    it('skips the species step for a prefetch the next load has already superseded', async () => {
+      await detail.load(2);
+      repo.holdPokemon(3);
+      detail.prefetchNeighbours(undefined, 3);
+      await detail.load(5);
+      repo.speciesIds = [];
+      repo.resolvePokemon(3, pokemon(3, 3));
+      await Promise.resolve();
+      await Promise.resolve();
+      expect(repo.speciesIds).not.toContain(3);
+    });
+
+    it('swallows a prefetch failure so it never surfaces as an error', async () => {
+      await detail.load(1);
+      repo.pokemonById.set(2, new AppError('transient'));
+      expect(() => detail.prefetchNeighbours(undefined, 2)).not.toThrow();
+      await Promise.resolve();
+      await Promise.resolve();
+      expect(detail.status()).toBe('ready');
+    });
   });
 });

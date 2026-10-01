@@ -46,6 +46,8 @@ export class DetailService {
   readonly description = computed(() => this._species()?.description);
 
   private entryId = 0;
+  /** Bumped on every load, so a prefetch can tell if a newer load has superseded it. */
+  private currentLoadId = 0;
 
   /**
    * Loads the detail for an entry id: fetches the core Pokémon, then its species
@@ -54,6 +56,7 @@ export class DetailService {
    */
   async load(entryId: number): Promise<void> {
     this.entryId = entryId;
+    this.currentLoadId++;
     this._status.set('loading');
     this._pokemon.set(undefined);
     this._species.set(undefined);
@@ -108,6 +111,40 @@ export class DetailService {
   /** Retries the evolution read after a per-tab failure. */
   retryEvolution(): Promise<void> {
     return this.fetchEvolution();
+  }
+
+  /**
+   * Warms the ±1 neighbours in the background so a swipe feels instant. It will fetches
+   * each neighbour's Pokémon and species, letting the repository's single flight
+   * take care of sharing the request with a real navigation to the same id.
+   * Each warmup remembers the load it started under, so if a rapid swipe moves
+   * on to a new entry before a neighbour responds, that stale warmup quietly
+   * stops before its species step rather than racing the real navigation's own
+   * fetches. It never cancels a request the landed on Pokémon is waiting on.
+   * Prefetch failures are silent, the real navigation will surface them if it
+   * hits the same error.
+   */
+  prefetchNeighbours(prevId: number | undefined, nextId: number | undefined): void {
+    const loadId = this.currentLoadId;
+    if (prevId !== undefined) {
+      void this.warmNeighbour(prevId, loadId);
+    }
+    if (nextId !== undefined) {
+      void this.warmNeighbour(nextId, loadId);
+    }
+  }
+
+  /** Fetches one neighbour's Pokémon + species, abandoning it if `loadId` goes stale. */
+  private async warmNeighbour(id: number, loadId: number): Promise<void> {
+    try {
+      const pokemon = await this.repository.getPokemon(id);
+      if (this.currentLoadId !== loadId) {
+        return;
+      }
+      await this.repository.getSpecies(pokemon.speciesId);
+    } catch {
+      // A prefetch failure is silent, the real navigation surfaces it instead.
+    }
   }
 
   /** Fetches the evolution chain, needs the species for its chain id. */
