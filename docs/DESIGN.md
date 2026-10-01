@@ -159,6 +159,17 @@ read as empty). Within a row, cards **stretch to fill** the width, with fixed in
   canvas, capped at 768 like the rest of the content. The app is light-only, so there is no dark
   variant to verify.
 - **Navigation:** full-width bottom tab bar (Browse · Favourites).
+- **Device safe areas (native).** On a phone the web layout no longer owns the whole screen.
+  Ionic exposes the insets as `--ion-safe-area-*`; three surfaces care:
+  - the **bottom tab bar** pads its bottom by the inset so the active row clears the iOS home
+    indicator instead of sitting under it;
+  - the **Detail Type hero stays full-bleed to the top edge** — the Type colour runs *under* the
+    status bar, and its contents (Back, ♥) are pushed down by the top inset. Letterboxing the
+    hero below the status bar would read as a broken header;
+  - the **status bar content style follows the hero's Type `label`** (§2.2) — white icons over a
+    white-label Type, dark icons over a black-label one — so the clock never vanishes into the
+    hero. Browse/Favourites keep the white canvas and dark icons; the splash red field is
+    full-bleed with white icons.
 
 ---
 
@@ -264,6 +275,23 @@ tab-content lines), matching the real shape, with a shimmer (AC-1.1 / AC-2.5).
   **red (`accent`) title** (“Pokédex”).
 - **Bottom tab bar:** **full-width bar with a red (`accent`) top border**; **Browse** (Poké Ball
   icon) · **Favourites** (♥). Active item `accent` red, inactive `disabled`.
+
+### AppIcon (home screen · not an Angular component)
+The launcher icon, designed to **hand off into the splash** — same field, same ball — so tapping
+the icon feels continuous with the boot cover (§6 SplashScreen). Built at **1024×1024**
+(`Icon · 1024`).
+
+- **Field** — full-bleed **`accent` red** (`#DC0A2D`), matching the splash exactly.
+- **Mark** — the same centred classic red/white **Poké Ball** as the splash hero, with its 8px
+  `#22222E` outline, at ~62% of the canvas.
+- **No wordmark** — "Pokédex" is unreadable at 48px; the ball carries the brand alone.
+- **No transparency and no pre-rounded corners** — both platforms mask the square themselves, and
+  a baked-in radius leaves a visible double corner.
+- **Android adaptive icon** — delivered as **two layers**, foreground (the ball) over background
+  (the flat red field), because launchers mask and parallax them independently. The ball stays
+  inside the inner **66%** safe zone so no mask shape crops it.
+- **Light and dark are identical** — the field is a brand colour, not a theme surface (same
+  reasoning as the splash).
 
 ### SplashScreen (app boot · not an Angular component)
 A **brand / boot cover** shown while the app shell starts — **not a data gate**. It gates on
@@ -375,6 +403,8 @@ The Figma file's page structure and the order we build it.
 2. **02 · Components** — every component in §6 (reference-style, named groups).
 3. **03 · Screens** — *all* screen artboards: the Splash boot cover (375 / 1280), Browse
    (375 / 768 / 1280), Detail, Favourites, and the §9 states.
+   The **app icon** master (`Icon · 1024`) lives here too — an export asset rather than a
+   screen, but it shares the Splash's field and ball (§6 AppIcon).
 
 **Build order**
 
@@ -388,6 +418,7 @@ The Figma file's page structure and the order we build it.
 | 6 | **All states** — skeletons, empties, errors, offline, 404 | §6.1 State Matrix | **built** — Browse loading (skeleton grid) / error / offline / load-more error · Search "no matches" / "unavailable" · Detail 404 / SkeletonDetail / "does not evolve" · Favourites empty / "No [Type] favourites" |
 | 7 | **Splash boot cover** (red-immersive · 375 / 1280) | app startup | **built** — hero Poké Ball + wordmark + "Warming up the Pokédex…"; spinning hero ball (web); ~600ms + fade exit |
 | 8 | (optional) prototype wiring for a click-through of §7 | flows | pending |
+| 9 | **App icon** — 1024 master + Android adaptive layers (foreground / background) | native packaging (ticket 18) | pending |
 
 ---
 

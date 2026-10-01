@@ -290,11 +290,13 @@ and avoid request floods per its fair-use policy.
 | S6 | Moves list on detail | Large, low payoff per effort |
 | S7 | End-to-end tests | Added after the app is finished and polished |
 | S8 | Context-aware swipe | Let detail swipe walk the *subset* you came from (next Favourite / next Water / next search hit) instead of being disabled outside the Browse feed |
+| S9 | **Store submission** — signing identities, store listing metadata, screenshots, review submission | v1's native bar is that UC-1 … UC-6 pass on a real iOS **and** Android device (§10); publishing is a release activity, not a build one, and needs paid developer accounts. The app id (`com.pokedex.app`) and app name would also need renaming off the Pokémon trademark first |
 | — | Accounts / cross-device sync | Requires a backend; breaks the frontend-only constraint |
 
 ## 10. Definition of done (v1)
 
-- UC-1 … UC-6 pass all acceptance criteria on web and in a native build.
+- UC-1 … UC-6 pass all acceptance criteria on web and in a native build on **both** iOS
+  and Android. Publishing to the stores is out of scope (§9 S9).
 - NFR-1 … NFR-7 satisfied.
 - Unit + component tests green; README explains how to run web + native.
 - CONTEXT.md, ADRs, and this PRD current.

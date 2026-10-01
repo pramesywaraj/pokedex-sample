@@ -309,6 +309,12 @@ export const routes: Routes = [
   search pass "disabled" (AC-2.15). When the flag is **absent** (refresh, cold deep-link, share)
   it **defaults to Browse context**: swipe enabled (loading until the index lands, AC-2.13b),
   Back → Browse (AC-2.16). The same flag gates neighbour prefetch (§8).
+- **Android hardware back honours the same rules as the in-app Back.** It is a *separate input*
+  from the header chevron, so it is wired once at the app shell rather than per page: it pops the
+  router history, and on a cold deep-link with nothing to pop it goes to `tabs/browse` instead of
+  exiting the app (the AC-2.16 fallback). From a tab root with nothing left to pop, it exits.
+  Because swipe **replaces** the URL, a Trainer who swiped 25 → 30 is one back press from Browse,
+  not six.
 - **Navigate only via the Angular router** (never `window.location` / a hard `href` to an
   internal route) — a hard reload needlessly throws away the in-memory session state and cache.
 
