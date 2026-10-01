@@ -14,10 +14,12 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { IonContent } from '@ionic/angular';
 import { DetailService } from '../../application/detail.service';
 import { FavouritesService } from '../../application/favourites.service';
+import { NetworkService } from '../../application/network.service';
 import { PokemonIndexService } from '../../application/pokemon-index.service';
 import { ErrorState } from '../../shared/ui/error-state/error-state';
 import { PokeballBackdrop } from '../../shared/ui/pokeball-backdrop/pokeball-backdrop';
 import { SkeletonDetail } from '../../shared/ui/skeleton-detail/skeleton-detail';
+import { StateScreen } from '../../shared/ui/state-screen/state-screen';
 import { AboutTab } from './about-tab/about-tab';
 import { DetailHeader } from './detail-header/detail-header';
 import { DetailTab, DetailTabs } from './detail-tabs/detail-tabs';
@@ -52,6 +54,7 @@ const SWIPE_VERTICAL_TOLERANCE_PX = 40;
     EvolutionTab,
     NotFoundDetail,
     ErrorState,
+    StateScreen,
   ],
   providers: [DetailService],
   templateUrl: './detail.page.html',
@@ -61,6 +64,7 @@ export class DetailPage implements OnInit {
   protected readonly detail = inject(DetailService);
   protected readonly favourites = inject(FavouritesService);
   protected readonly index = inject(PokemonIndexService);
+  protected readonly network = inject(NetworkService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly location = inject(Location);
@@ -102,6 +106,15 @@ export class DetailPage implements OnInit {
   /** The open tab; the view opens on About. */
   protected readonly activeTab = signal<DetailTab>('about');
 
+  /**
+   * While offline before the core Pokémon has landed, swap in the offline state
+   * over the skeleton or error view. Once the detail is on screen the normal
+   * view stays, so cached content remains readable through a brief blip.
+   */
+  protected readonly showOffline = computed(
+    () => !this.network.online() && this.detail.pokemon() === undefined,
+  );
+
   constructor() {
     // Once the index has loaded, warm the neighbours of whatever entry is on screen
     // and keep doing it as the Trainer swipes to an adjacent entry.
@@ -113,6 +126,14 @@ export class DetailPage implements OnInit {
       }
       const { prev, next } = this.index.neighbours(id);
       this.detail.prefetchNeighbours(prev, next);
+    });
+
+    // When the connection returns, retry whatever the detail couldn't finish
+    // loading while we were offline, so the Trainer doesn't have to tap Retry.
+    this.network.onReconnect(() => {
+      if (this.detail.status() === 'error' || this.detail.status() === 'loading') {
+        void this.detail.retry();
+      }
     });
   }
 

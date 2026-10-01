@@ -1,62 +1,68 @@
 <ion-content [fullscreen]="true">
-  @switch (detail.status()) {
-    @case ('loading') {
-      <app-skeleton-detail />
-    }
-    @case ('notFound') {
-      <app-not-found-detail (back)="back()" (goToBrowse)="goToBrowse()" />
-    }
-    @case ('error') {
-      <div class="page-error">
-        <app-error-state message="Couldn't load this Pokémon." (retry)="detail.retry()" />
-      </div>
-    }
-    @default {
-      <div class="detail" [style.--panel]="panelVar()" [style.--active]="panelVar()">
-        <app-pokeball-backdrop />
+  @if (showOffline()) {
+    <div class="page-error">
+      <app-state-screen title="You're offline" message="Reconnect to load this Pokémon." />
+    </div>
+  } @else {
+    @switch (detail.status()) {
+      @case ('loading') {
+        <app-skeleton-detail />
+      }
+      @case ('notFound') {
+        <app-not-found-detail (back)="back()" (goToBrowse)="goToBrowse()" />
+      }
+      @case ('error') {
+        <div class="page-error">
+          <app-error-state message="Couldn't load this Pokémon." (retry)="detail.retry()" />
+        </div>
+      }
+      @default {
+        <div class="detail" [style.--panel]="panelVar()" [style.--active]="panelVar()">
+          <app-pokeball-backdrop />
 
-        <app-detail-header
-          [pokemon]="detail.pokemon()!"
-          [category]="detail.category()"
-          [favourite]="isFavourite()"
-          [favouriteReady]="favourites.ready()"
-          [navEnabled]="navOn()"
-          [navIndexReady]="index.ready()"
-          [navPrevId]="prevId()"
-          [navNextId]="nextId()"
-          (back)="back()"
-          (favouriteToggle)="toggleFavourite()"
-          (navPrev)="goPrev()"
-          (navNext)="goNext()"
-        />
+          <app-detail-header
+            [pokemon]="detail.pokemon()!"
+            [category]="detail.category()"
+            [favourite]="isFavourite()"
+            [favouriteReady]="favourites.ready()"
+            [navEnabled]="navOn()"
+            [navIndexReady]="index.ready()"
+            [navPrevId]="prevId()"
+            [navNextId]="nextId()"
+            (back)="back()"
+            (favouriteToggle)="toggleFavourite()"
+            (navPrev)="goPrev()"
+            (navNext)="goNext()"
+          />
 
-        <app-detail-tabs class="tabs" [active]="activeTab()" (tabChange)="selectTab($event)" />
+          <app-detail-tabs class="tabs" [active]="activeTab()" (tabChange)="selectTab($event)" />
 
-        <section class="sheet">
-          @switch (activeTab()) {
-            @case ('stats') {
-              <app-stats-tab [stats]="detail.pokemon()!.stats" />
+          <section class="sheet">
+            @switch (activeTab()) {
+              @case ('stats') {
+                <app-stats-tab [stats]="detail.pokemon()!.stats" />
+              }
+              @case ('evolution') {
+                <app-evolution-tab
+                  [pokemon]="detail.pokemon()!"
+                  [status]="detail.evolutionStatus()"
+                  [chain]="detail.evolution()"
+                  (retry)="detail.retryEvolution()"
+                  (selectStage)="openStage($event)"
+                />
+              }
+              @default {
+                <app-about-tab
+                  [pokemon]="detail.pokemon()!"
+                  [description]="detail.description()"
+                  [descriptionStatus]="detail.descriptionStatus()"
+                  (retryDescription)="detail.retryDescription()"
+                />
+              }
             }
-            @case ('evolution') {
-              <app-evolution-tab
-                [pokemon]="detail.pokemon()!"
-                [status]="detail.evolutionStatus()"
-                [chain]="detail.evolution()"
-                (retry)="detail.retryEvolution()"
-                (selectStage)="openStage($event)"
-              />
-            }
-            @default {
-              <app-about-tab
-                [pokemon]="detail.pokemon()!"
-                [description]="detail.description()"
-                [descriptionStatus]="detail.descriptionStatus()"
-                (retryDescription)="detail.retryDescription()"
-              />
-            }
-          }
-        </section>
-      </div>
+          </section>
+        </div>
+      }
     }
   }
 </ion-content>
