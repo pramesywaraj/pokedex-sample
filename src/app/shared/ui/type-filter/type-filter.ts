@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
-import { PokemonTypeName, pokemonTypeNames } from '../../../domain/pokemon-type-name';
+import { PokemonTypeName, pokemonTypeNames, typeLabel } from '../../../domain/pokemon-type-name';
 
 /**
  * The horizontally scrolling chip row above the Browse grid. A leading neutral
@@ -21,10 +21,8 @@ export class TypeFilter {
   /** The 18 chips, in the canonical Type order. */
   protected readonly types = pokemonTypeNames;
 
-  /** Title cases a Type slug for the chip label, so "grass" becomes "Grass". */
-  protected label(name: PokemonTypeName): string {
-    return name.charAt(0).toUpperCase() + name.slice(1);
-  }
+  /** The chip label for a Type. */
+  protected readonly label = typeLabel;
 
   /** CSS variable name for a Type's fill hue, matched to the theme tokens. */
   protected fillVar(name: PokemonTypeName): string {

@@ -26,3 +26,8 @@ export const pokemonTypeNames = [
 
 /** An elemental Type a Pokémon belongs to; a Pokémon has one or two. */
 export type PokemonTypeName = (typeof pokemonTypeNames)[number];
+
+/** The human readable spelling of a Type, so "grass" shows up as "Grass". */
+export function typeLabel(name: PokemonTypeName): string {
+  return name.charAt(0).toUpperCase() + name.slice(1);
+}

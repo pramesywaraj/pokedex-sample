@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
-import { PokemonTypeName } from '../../../domain/pokemon-type-name';
+import { PokemonTypeName, typeLabel } from '../../../domain/pokemon-type-name';
 
 /**
  * On the coloured header the primary pill is translucent white (the header already
@@ -23,10 +23,7 @@ export class TypeBadge {
   readonly variant = input<TypeBadgeVariant>('solid');
 
   /** Title-cased Type name for display, e.g. "grass" becomes "Grass". */
-  protected readonly label = computed(() => {
-    const name = this.type();
-    return name.charAt(0).toUpperCase() + name.slice(1);
-  });
+  protected readonly label = computed(() => typeLabel(this.type()));
 
   /** The pill's fill, the Type's own hue for a solid pill. */
   protected readonly fillVar = computed(() => `var(--pkx-type-${this.type()})`);
