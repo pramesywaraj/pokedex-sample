@@ -7,8 +7,174 @@
     <meta name="viewport" content="viewport-fit=cover, width=device-width, initial-scale=1" />
     <meta name="color-scheme" content="light" />
     <link rel="icon" type="image/x-icon" href="favicon.ico" />
+    <style>
+      .splash {
+        position: fixed;
+        inset: 0;
+        z-index: 100000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        background: var(--pkx-accent, #dc0a2d);
+        color: var(--pkx-on-type, #ffffff);
+        font-family: var(
+          --ion-font-family,
+          -apple-system,
+          BlinkMacSystemFont,
+          'Segoe UI',
+          Roboto,
+          'Helvetica Neue',
+          Arial,
+          sans-serif
+        );
+      }
+
+      .splash--leaving {
+        opacity: 0;
+        pointer-events: none;
+      }
+
+      .splash-watermark {
+        position: absolute;
+      }
+
+      .splash-watermark--top {
+        top: 0;
+        left: 0;
+      }
+
+      .splash-watermark--bottom {
+        bottom: 0;
+        right: -145px;
+      }
+
+      .splash-cluster {
+        position: relative;
+        top: 7px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+      }
+
+      .splash-ball {
+        display: block;
+        animation: splash-spin 1.2s linear infinite;
+      }
+
+      .splash-wordmark {
+        margin: 28px 0 0;
+        font-size: 34px;
+        font-weight: 700;
+        line-height: 1.2;
+      }
+
+      .splash-subtitle {
+        margin: var(--pkx-space-12, 12px) 0 0;
+        font-size: 14px;
+        font-weight: 500;
+        line-height: 1.2;
+        opacity: 0.7;
+      }
+
+      @keyframes splash-spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+
+      @media (min-width: 768px) {
+        .splash-watermark--bottom {
+          right: -110px;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .splash-ball {
+          animation: none;
+        }
+      }
+    </style>
   </head>
   <body>
+    <!-- Brand boot cover, taken down by hideSplash once Angular has bootstrapped. -->
+    <div id="splash" class="splash" aria-hidden="true">
+      <svg
+        class="splash-watermark splash-watermark--top"
+        width="176"
+        height="274"
+        viewBox="0 0 176 274"
+        fill="none"
+        aria-hidden="true"
+      >
+        <path
+          d="M128.56 166.79C100.265 224.588 32.8822 254.129 -30.1212 233.466C-93.1246 212.803 -129.925 149.094 -118.495 85.7656L-62.0737 104.27C-64.1637 136.619 -44.2632 167.554 -11.9772 178.143C20.3088 188.731 54.6649 175.59 72.1388 148.286L128.56 166.79ZM51.5264 -15.488C114.53 5.17484 151.331 68.8836 139.9 132.213L83.4789 113.709C85.5688 81.3596 65.6684 50.424 33.3824 39.8354C1.09648 29.2468 -33.2596 42.3884 -50.7336 69.692L-107.155 51.188C-78.8602 -6.61045 -11.4771 -36.1508 51.5264 -15.488Z"
+          fill="#F1F1F1"
+          fill-opacity="0.2"
+        />
+        <ellipse
+          cx="11.8679"
+          cy="111.286"
+          rx="45.5755"
+          ry="45.4862"
+          transform="rotate(18.1575 11.8679 111.286)"
+          fill="#F1F1F1"
+          fill-opacity="0.2"
+        />
+      </svg>
+      <svg
+        class="splash-watermark splash-watermark--bottom"
+        width="290"
+        height="290"
+        viewBox="0 0 290 290"
+        fill="none"
+        aria-hidden="true"
+      >
+        <path
+          d="M242.199 103.521C262.585 151.433 245.038 208.261 199.111 235.815C153.184 263.368 94.7849 252.103 62.106 211.565L103.236 186.89C121.91 205.305 151.339 209.533 174.874 195.414C198.409 181.294 208.529 153.339 201.071 128.195L242.199 103.521ZM90.0468 54.0219C135.974 26.4687 194.372 37.7342 227.051 78.2718L185.924 102.946C167.25 84.5284 137.819 80.2986 114.283 94.4185C90.7474 108.539 80.6265 136.497 88.0872 161.641L46.9582 186.316C26.5723 138.404 44.1196 81.5754 90.0468 54.0219Z"
+          fill="#F1F1F1"
+          fill-opacity="0.2"
+        />
+        <ellipse
+          cx="146.599"
+          cy="145.421"
+          rx="36.8137"
+          ry="36.8053"
+          transform="rotate(-30.9611 146.599 145.421)"
+          fill="#F1F1F1"
+          fill-opacity="0.2"
+        />
+      </svg>
+
+      <div class="splash-cluster">
+        <svg
+          class="splash-ball"
+          width="128"
+          height="128"
+          viewBox="0 0 128 128"
+          fill="none"
+          aria-hidden="true"
+        >
+          <g clip-path="url(#splash-ball-clip)">
+            <rect width="128" height="128" rx="64" fill="#DC0A2D" />
+            <rect y="64" width="128" height="64" fill="white" />
+            <rect y="58" width="128" height="12" fill="#22222E" />
+            <circle cx="64" cy="64" r="23" fill="#22222E" />
+            <circle cx="64" cy="64" r="14" fill="white" />
+          </g>
+          <rect x="4" y="4" width="120" height="120" rx="60" stroke="#22222E" stroke-width="8" />
+          <defs>
+            <clipPath id="splash-ball-clip">
+              <rect width="128" height="128" rx="64" fill="white" />
+            </clipPath>
+          </defs>
+        </svg>
+        <p class="splash-wordmark">Pokédex</p>
+        <p class="splash-subtitle">Warming up the Pokédex…</p>
+      </div>
+    </div>
+
     <app-root></app-root>
   </body>
 </html>
