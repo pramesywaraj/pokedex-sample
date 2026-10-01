@@ -33,10 +33,7 @@ describe('TypePokemonSource', () => {
   beforeEach(() => {
     repo = new FakeRepository();
     TestBed.configureTestingModule({
-      providers: [
-        TypePokemonSource,
-        { provide: PokemonRepository, useValue: repo },
-      ],
+      providers: [TypePokemonSource, { provide: PokemonRepository, useValue: repo }],
     });
     source = TestBed.inject(TypePokemonSource);
   });

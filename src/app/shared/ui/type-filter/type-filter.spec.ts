@@ -3,7 +3,9 @@ import { PokemonTypeName, pokemonTypeNames } from '../../../domain/pokemon-type-
 import { TypeFilter } from './type-filter';
 
 describe('TypeFilter', () => {
-  async function render(active: PokemonTypeName | null = null): Promise<ComponentFixture<TypeFilter>> {
+  async function render(
+    active: PokemonTypeName | null = null,
+  ): Promise<ComponentFixture<TypeFilter>> {
     const fixture = TestBed.createComponent(TypeFilter);
     fixture.componentRef.setInput('active', active);
     fixture.detectChanges();
