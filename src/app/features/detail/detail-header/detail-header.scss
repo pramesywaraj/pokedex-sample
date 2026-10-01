@@ -118,3 +118,23 @@
 .flip ion-icon {
   font-size: 18px;
 }
+
+@media (min-width: 768px) {
+  :host {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+  }
+
+  .sprites {
+    display: grid;
+    place-items: center;
+    max-height: none;
+    margin-block: auto;
+  }
+
+  .art {
+    max-width: 260px;
+    margin: 0;
+  }
+}

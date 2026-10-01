@@ -1,3 +1,13 @@
+.frame {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+}
+
+.frame > * {
+  flex: 1;
+}
+
 .detail {
   position: relative;
   display: flex;
@@ -5,6 +15,10 @@
   min-height: 100%;
   background: var(--panel);
   overflow: hidden;
+}
+
+.hero {
+  display: contents;
 }
 
 .tabs {
@@ -29,4 +43,61 @@
   align-items: center;
   justify-content: center;
   min-height: 100%;
+}
+
+@media (min-width: 768px) {
+  .detail {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto 1fr;
+    grid-template-areas:
+      'hero tabs'
+      'hero sheet';
+    background: var(--pkx-bg);
+    overflow: visible;
+  }
+
+  .hero {
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    grid-area: hero;
+    position: sticky;
+    top: 0;
+    align-self: start;
+    height: min(100dvh, 100%);
+    min-height: min-content;
+    background: var(--panel);
+    box-shadow: var(--pkx-shadow-soft);
+    overflow: clip;
+  }
+
+  .tabs {
+    grid-area: tabs;
+    margin-top: calc(var(--pkx-space-40) + var(--pkx-space-24));
+  }
+
+  .sheet {
+    grid-area: sheet;
+    margin: 0 var(--pkx-space-16);
+    padding: var(--pkx-space-32) var(--pkx-space-24) var(--pkx-space-24);
+    background: transparent;
+    border-radius: 0;
+  }
+}
+
+@media (min-width: 769px) {
+  ion-content {
+    --background: var(--pkx-surface);
+  }
+
+  .frame {
+    max-width: 768px;
+    min-height: calc(100% - var(--pkx-space-32));
+    margin: var(--pkx-space-16) auto;
+    background: var(--pkx-bg);
+    border-radius: var(--pkx-radius-sheet);
+    box-shadow: var(--pkx-shadow-soft);
+    overflow: clip;
+  }
 }
