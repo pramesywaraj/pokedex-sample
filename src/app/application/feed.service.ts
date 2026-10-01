@@ -1,15 +1,17 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { PokemonSummary } from '../domain/pokemon-summary';
+import { PokemonTypeName } from '../domain/pokemon-type-name';
 import { PokemonIndexService } from './pokemon-index.service';
 import { BrowsePokemonSource } from './sources/browse.source';
 import { PokemonSource } from './sources/pokemon-source';
 import { SearchPokemonSource } from './sources/search.source';
+import { TypePokemonSource } from './sources/type.source';
 
 /** First load lifecycle of the grid, per mode. */
 export type FeedStatus = 'loading' | 'ready' | 'empty' | 'error';
 
 /** Which loader is feeding the grid. */
-export type FeedMode = 'browse' | 'search';
+export type FeedMode = 'browse' | 'search' | 'type';
 
 /**
  * Powers the Browse grid, holds the loaded summaries and the per-state signals a
@@ -21,6 +23,7 @@ export type FeedMode = 'browse' | 'search';
 export class FeedService {
   private readonly browseSource = inject(BrowsePokemonSource);
   private readonly searchSource = inject(SearchPokemonSource);
+  private readonly typeSource = inject(TypePokemonSource);
   private readonly index = inject(PokemonIndexService);
 
   private readonly _items = signal<PokemonSummary[]>([]);
@@ -30,6 +33,7 @@ export class FeedService {
   private readonly _hasMore = signal(true);
   private readonly _mode = signal<FeedMode>('browse');
   private readonly _query = signal('');
+  private readonly _activeType = signal<PokemonTypeName | null>(null);
   private inFlight = false;
   private source: PokemonSource = this.browseSource;
 
@@ -47,6 +51,8 @@ export class FeedService {
   readonly mode = this._mode.asReadonly();
   /** The trimmed query driving search mode, empty in browse mode. */
   readonly query = this._query.asReadonly();
+  /** The Type driving type mode, null when the filter is not active. */
+  readonly activeType = this._activeType.asReadonly();
 
   /**
    * Loads the next page from the active source. The first call drives the
@@ -83,11 +89,13 @@ export class FeedService {
   }
 
   /**
-   * Switches to browse mode and clears any active search. Safe to call when
-   * already in browse mode, only re-seeds the grid if it isn't already loaded.
+   * Switches to browse mode and clears any active search or Type filter. Safe
+   * to call when already in browse mode, only re-seeds the grid if it isn't
+   * already loaded.
    */
   showBrowse(): Promise<void> {
     this._query.set('');
+    this._activeType.set(null);
     if (this._mode() === 'browse' && this._items().length > 0) {
       return Promise.resolve();
     }
@@ -110,9 +118,26 @@ export class FeedService {
       return this.showBrowse();
     }
     this._query.set(trimmed);
+    this._activeType.set(null);
     this._mode.set('search');
     this.searchSource.setResults(this.index.search(trimmed));
     this.source = this.searchSource;
+    this.resetGrid();
+    return this.loadNext();
+  }
+
+  /**
+   * Enters type mode for a Type. Clears any active search (filter and search
+   * are alternative modes) and points the shared grid at the Type source. A
+   * brief skeleton shows while the first page loads, so a cold filter still
+   * feels the same as browse's first load.
+   */
+  showByType(name: PokemonTypeName): Promise<void> {
+    this._query.set('');
+    this._activeType.set(name);
+    this._mode.set('type');
+    this.typeSource.setType(name);
+    this.source = this.typeSource;
     this.resetGrid();
     return this.loadNext();
   }
