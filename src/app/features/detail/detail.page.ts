@@ -12,6 +12,7 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import { IonContent } from '@ionic/angular';
+import { canPopHistory } from '../../application/can-pop-history';
 import { DetailService } from '../../application/detail.service';
 import { FavouritesService } from '../../application/favourites.service';
 import { NetworkService } from '../../application/network.service';
@@ -179,8 +180,7 @@ export class DetailPage implements OnInit {
 
   /** Steps back to where the Trainer came from, or Browse on a cold deep-link. */
   protected back(): void {
-    const state = this.location.getState() as { navigationId?: number } | null;
-    if (state?.navigationId && state.navigationId > 1) {
+    if (canPopHistory(this.location.getState())) {
       this.location.back();
     } else {
       void this.goToBrowse();
