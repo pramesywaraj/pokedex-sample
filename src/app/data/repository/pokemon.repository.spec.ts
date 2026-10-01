@@ -215,7 +215,7 @@ describe('PokemonRepository', () => {
     it('caches each Type set at type:{name} for reuse by the Type filter', async () => {
       client.typeSets.set('fire', typeDto([[6, 1]]));
       await repo.getTypeIndex();
-      expect(await cache.get(typeKey('fire'))).toEqual([{ id: 6, slot: 1 }]);
+      expect(await cache.get(typeKey('fire'))).toEqual([{ id: 6, slot: 1, name: 'p-6' }]);
     });
 
     it('reads cached Type sets straight through on a second fold', async () => {
@@ -224,6 +224,38 @@ describe('PokemonRepository', () => {
       const firstRound = [...client.typeCalls];
       await repo.getTypeIndex();
       expect(client.typeCalls).toEqual(firstRound);
+    });
+  });
+
+  describe('getByType', () => {
+    it('builds Dex ordered summaries from the cached Type set', async () => {
+      client.typeSets.set(
+        'fire',
+        typeDto([
+          [4, 1],
+          [6, 1],
+          [5, 1],
+        ]),
+      );
+      const summaries = await repo.getByType('fire');
+      expect(summaries.map((s) => s.id)).toEqual([4, 5, 6]);
+      expect(summaries[0].name).toBe('P 4');
+      expect(summaries[0].artworkUrl).toContain('/4.png');
+    });
+
+    it('reuses a warmed Type set without a second fetch', async () => {
+      client.typeSets.set('fire', typeDto([[6, 1]]));
+      await repo.getTypeIndex();
+      const callsAfterWarmUp = [...client.typeCalls];
+      await repo.getByType('fire');
+      expect(client.typeCalls).toEqual(callsAfterWarmUp);
+    });
+
+    it('fetches on a cold filter when the Type has not been warmed', async () => {
+      client.typeSets.set('water', typeDto([[7, 1]]));
+      const summaries = await repo.getByType('water');
+      expect(client.typeCalls).toEqual(['water']);
+      expect(summaries.map((s) => s.id)).toEqual([7]);
     });
   });
 

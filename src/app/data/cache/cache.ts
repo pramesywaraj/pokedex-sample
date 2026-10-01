@@ -22,7 +22,7 @@ export const CACHE = new InjectionToken<Cache>('CACHE');
  * The persisted-shape version. Bump this whenever a cached record's shape changes
  * between releases, so a stale cache is cleared and rebuilt cold on next launch.
  */
-export const cacheVersion = '1';
+export const cacheVersion = '2';
 
 /** The reserved key under which the cache version is stored alongside the data. */
 export const CACHE_VERSION_KEY = 'cacheVersion';

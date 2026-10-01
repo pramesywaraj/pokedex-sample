@@ -11,8 +11,8 @@ describe('toTypeMembers', () => {
     };
 
     expect(toTypeMembers(dto)).toEqual([
-      { id: 4, slot: 1 },
-      { id: 95, slot: 2 },
+      { id: 4, slot: 1, name: 'charmander' },
+      { id: 95, slot: 2, name: 'onix' },
     ]);
   });
 
@@ -25,6 +25,6 @@ describe('toTypeMembers', () => {
         },
       ],
     };
-    expect(toTypeMembers(dto)).toEqual([{ id: 10001, slot: 1 }]);
+    expect(toTypeMembers(dto)).toEqual([{ id: 10001, slot: 1, name: 'deoxys-attack' }]);
   });
 });

@@ -10,7 +10,8 @@ import { CACHE } from '../cache/cache';
 import { toEvolutionChain } from '../mappers/evolution-chain.mapper';
 import { toPokemon } from '../mappers/pokemon.mapper';
 import { toSpecies } from '../mappers/pokemon-species.mapper';
-import { toPokemonSummaries } from '../mappers/pokemon-summary.mapper';
+import { titleCaseName, toPokemonSummaries } from '../mappers/pokemon-summary.mapper';
+import { artworkUrlFor } from '../mappers/sprite-urls';
 import { TypeMember, toTypeMembers } from '../mappers/type.mapper';
 
 /** Cache key for the phone-book index (the full ordered list of every entry). */
@@ -109,6 +110,23 @@ export class PokemonRepository {
       );
     }
     return index;
+  }
+
+  /**
+   * Reads the members of a Type as card ready summaries. Sorted by entry id
+   * so the main dex comes first and Forms (10001+) trail after, matching how
+   * Browse pages the list. Reuses the same cached `type:{name}` set that warms
+   * the colour map, so a filter after the warm up needs no fetch.
+   */
+  async getByType(name: PokemonTypeName): Promise<PokemonSummary[]> {
+    const members = await this.readType(name);
+    return [...members]
+      .sort((a, b) => a.id - b.id)
+      .map(({ id, name: slug }) => ({
+        id,
+        name: titleCaseName(slug),
+        artworkUrl: artworkUrlFor(id),
+      }));
   }
 
   /** Reads a Type set from the cache or fetches and maps it on a miss. */
