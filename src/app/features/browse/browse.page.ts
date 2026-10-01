@@ -103,8 +103,16 @@ export class BrowsePage implements OnInit {
     await event.target.complete();
   }
 
-  /** Feeds a new query to the grid, or returns to browse when it's empty. */
+  /**
+   * Feeds a new query to the grid, or returns to browse when it's empty.
+   * Clearing the bar is debounced, so an empty query can arrive just after a
+   * Type was picked. Ignore it while a Type is active, otherwise the fresh
+   * filter gets dropped and the chips snap back to All.
+   */
   protected onQueryChange(query: string): void {
+    if (query.trim().length === 0 && this.feed.activeType()) {
+      return;
+    }
     void this.feed.showSearch(query);
   }
 
