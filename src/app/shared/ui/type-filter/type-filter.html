@@ -1,0 +1,27 @@
+<div class="row" role="tablist" aria-label="Filter by Type">
+  <button
+    type="button"
+    role="tab"
+    class="chip all"
+    [class.selected]="active() === null"
+    [attr.aria-selected]="active() === null"
+    (click)="pick.emit(null)"
+  >
+    All
+  </button>
+
+  @for (name of types; track name) {
+    <button
+      type="button"
+      role="tab"
+      class="chip type"
+      [class.selected]="active() === name"
+      [attr.aria-selected]="active() === name"
+      [style.--chip-fill]="fillVar(name)"
+      [style.--chip-on]="onVar(name)"
+      (click)="pick.emit(name)"
+    >
+      {{ label(name) }}
+    </button>
+  }
+</div>
