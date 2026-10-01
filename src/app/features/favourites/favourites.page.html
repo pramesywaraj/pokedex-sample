@@ -16,7 +16,7 @@
         } @else {
           <div class="grid">
             @for (entry of favourites.entries(); track entry.id) {
-              <a class="card-link" [routerLink]="['/pokemon', entry.id]">
+              <a class="card-link" [routerLink]="['/pokemon', entry.id]" [state]="detailNavState">
                 <app-pokemon-card
                   [id]="entry.id"
                   [name]="entry.name"

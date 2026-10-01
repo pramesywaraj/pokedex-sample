@@ -35,6 +35,12 @@ export class FavouritesPage implements OnInit {
   /** Placeholder cells for the first-read skeleton grid. */
   protected readonly skeletons = Array.from({ length: 6 });
 
+  /**
+   * Carries browseNav false in router state so a detail opened from Favourites
+   * leaves the swipe/arrow Pokémon nav off, and Back returns here.
+   */
+  protected readonly detailNavState = { browseNav: false };
+
   ngOnInit(): void {
     void this.favourites.load();
   }
