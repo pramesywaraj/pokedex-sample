@@ -1,0 +1,75 @@
+ion-content {
+  --background: var(--pkx-bg);
+}
+
+.page {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100%;
+  padding: var(--pkx-space-24) var(--pkx-space-16);
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 22px;
+  width: 300px;
+  max-width: 100%;
+  text-align: center;
+}
+
+.code {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.digit {
+  color: var(--pkx-accent);
+  font-size: 120px;
+  font-weight: 700;
+  line-height: 145px;
+}
+
+.ball {
+  display: block;
+  flex-shrink: 0;
+}
+
+.ball-top {
+  fill: var(--pkx-accent);
+}
+
+.title {
+  margin: 0;
+  color: var(--pkx-ink);
+  font-size: 26px;
+  font-weight: 700;
+  line-height: 31px;
+}
+
+.message {
+  margin: 0;
+  color: var(--pkx-muted);
+  font-size: var(--pkx-text-body-size);
+  font-weight: var(--pkx-text-body-weight);
+  line-height: 18px;
+}
+
+.cta {
+  height: 48px;
+  margin: 0;
+  --background: var(--pkx-accent);
+  --background-activated: var(--pkx-accent);
+  --color: var(--pkx-on-type);
+  --border-radius: var(--pkx-radius-pill);
+  --padding-start: 30px;
+  --padding-end: 30px;
+  --box-shadow: none;
+  font-size: var(--pkx-text-body-size);
+  font-weight: 600;
+  letter-spacing: 0;
+  text-transform: none;
+}

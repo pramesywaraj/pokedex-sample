@@ -1,0 +1,39 @@
+<ion-content>
+  <main class="page">
+    <div class="content">
+      <div class="code" role="img" aria-label="404">
+        <span class="digit" aria-hidden="true">4</span>
+        <svg
+          class="ball"
+          width="100"
+          height="100"
+          viewBox="0 0 100 100"
+          fill="none"
+          aria-hidden="true"
+        >
+          <g clip-path="url(#page-not-found-ball-clip)">
+            <rect class="ball-top" width="100" height="100" rx="50" />
+            <rect y="50" width="100" height="50" fill="white" />
+            <rect y="45.5" width="100" height="9" fill="#22222E" />
+            <circle cx="50" cy="50" r="18" fill="#22222E" />
+            <circle cx="50" cy="50" r="11" fill="white" />
+          </g>
+          <rect x="4" y="4" width="92" height="92" rx="46" stroke="#22222E" stroke-width="8" />
+          <defs>
+            <clipPath id="page-not-found-ball-clip">
+              <rect width="100" height="100" rx="50" fill="white" />
+            </clipPath>
+          </defs>
+        </svg>
+        <span class="digit" aria-hidden="true">4</span>
+      </div>
+
+      <h1 class="title">Page not found</h1>
+      <p class="message">
+        This page slipped away into the tall grass. Let's get you back to safety.
+      </p>
+
+      <ion-button class="cta" shape="round" (click)="goToBrowse()">Back to Browse</ion-button>
+    </div>
+  </main>
+</ion-content>

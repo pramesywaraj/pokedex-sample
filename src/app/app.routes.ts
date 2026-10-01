@@ -22,4 +22,9 @@ export const routes: Routes = [
     loadComponent: () => import('./features/detail/detail.page').then((m) => m.DetailPage),
   },
   { path: '', redirectTo: 'tabs/browse', pathMatch: 'full' },
+  {
+    path: '**',
+    loadComponent: () =>
+      import('./features/page-not-found/page-not-found.page').then((m) => m.PageNotFoundPage),
+  },
 ];
