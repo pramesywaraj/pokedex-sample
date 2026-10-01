@@ -281,12 +281,15 @@ Built at **375** and **1280** (`Splash · 375` / `Splash · 1280`).
 - **Wordmark** — **"Pokédex"** below the ball (white, 34/700).
 - **Subtitle** — **"Warming up the Pokédex…"** (white @70%, 14/500) — on-brand flavour, *not*
   "Loading…/Please wait" (it isn't a wait or a gate).
-- **Motion** — **none**. Fully static so **native and web are identical** (the native splash is a
-  static image and can't animate); the only movement is the **exit**.
+- **Motion** — the hero ball **spins** (one turn per 1.2s, linear) on the **web overlay**; it
+  holds still under `prefers-reduced-motion`. The native splash is a static image and can't
+  animate, and it fades out together with the web overlay, so the spin is a web-only touch.
+  Otherwise the only movement is the **exit**.
 - **Wide screens** — the cluster stays **fixed-size, centred**; the red field simply grows around it
   (matches native letterboxing). **768 is omitted** — visually identical to these two.
 - **Exit** — a ~**600ms** minimum-display floor, then a ~**200ms fade** into the Browse skeleton
-  (prevents a flash on fast/warm loads; the fade is a *transition*, not the spinner we ruled out).
+  (prevents a flash on fast/warm loads; the fade is a *transition*, and the spinning ball is brand
+  flourish, not a progress indicator, since the cover waits on nothing).
 
 **Delivery — one design, two mechanisms.** *Native:* `@capacitor/splash-screen`
 (`launchShowDuration` + `SplashScreen.hide({ fadeOutDuration })`). *Web* (no native splash): an
@@ -381,7 +384,7 @@ The Figma file's page structure and the order we build it.
 | 4 | Detail happy path (About → Base Stats → Evolution) | UC-2, UC-3 | **built** — mobile 3 tabs + **two-pane About** at tablet 768 & desktop 1280 (centred card) |
 | 5 | Favourites (grid + empty) | UC-4 | **built (grid + "No favourites" empty state)** |
 | 6 | **All states** — skeletons, empties, errors, offline, 404 | §6.1 State Matrix | **built** — Browse loading (skeleton grid) / error / offline / load-more error · Search "no matches" / "unavailable" · Detail 404 / SkeletonDetail / "does not evolve" · Favourites empty / "No [Type] favourites" |
-| 7 | **Splash boot cover** (red-immersive · 375 / 1280) | app startup | **built** — hero Poké Ball + wordmark + "Warming up the Pokédex…"; static; ~600ms + fade exit |
+| 7 | **Splash boot cover** (red-immersive · 375 / 1280) | app startup | **built** — hero Poké Ball + wordmark + "Warming up the Pokédex…"; spinning hero ball (web); ~600ms + fade exit |
 | 8 | (optional) prototype wiring for a click-through of §7 | flows | pending |
 
 ---

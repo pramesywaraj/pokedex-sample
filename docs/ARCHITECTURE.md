@@ -64,7 +64,7 @@ src/app/
   application/   # APPLICATION floor — signal services: index, feed, favourites, network, detail (+ sources/)
   features/      # PRESENTATION floor — browse/ detail/ favourites/ (pages + feature-local components)
   shared/ui/     # reusable primitives — PokemonCard, SpriteImage, TypeBadge, StatBar, Skeleton*, PokéBall, StateScreen
-  core/          # app-wide singletons — interceptors (retry-backoff, error-normalise), DI tokens
+  core/          # app-wide singletons — interceptors (retry-backoff, error-normalise), DI tokens, boot splash dismissal
   theme/         # design tokens + the PokemonTypeName → colour map
 ```
 

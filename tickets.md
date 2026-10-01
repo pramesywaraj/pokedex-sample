@@ -181,7 +181,7 @@ skeleton.
 **Blocked by:** 3
 
 - [ ] Native via `@capacitor/splash-screen` (`launchShowDuration` + `hide({ fadeOutDuration })`); web via an `index.html` overlay removed after Angular bootstrap
-- [ ] Full-bleed red field, Poké Ball watermarks, hero ball + "Pokédex" + "Warming up the Pokédex…"; identical light/dark; static (no motion)
+- [ ] Full-bleed red field, Poké Ball watermarks, hero ball + "Pokédex" + "Warming up the Pokédex…"; identical light/dark; static apart from a spinning hero ball on the web overlay
 - [ ] ~600ms minimum floor, then a ~200ms fade into the Browse skeleton; gates on **nothing** (does not wait on the index — AC-2.13b / AC-6.5); no error/offline/timeout state
 
 ## 15 · App-level 404 page
