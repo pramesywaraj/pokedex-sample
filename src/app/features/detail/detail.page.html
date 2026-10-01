@@ -20,8 +20,14 @@
           [category]="detail.category()"
           [favourite]="isFavourite()"
           [favouriteReady]="favourites.ready()"
+          [navEnabled]="navOn()"
+          [navIndexReady]="index.ready()"
+          [navPrevId]="prevId()"
+          [navNextId]="nextId()"
           (back)="back()"
           (favouriteToggle)="toggleFavourite()"
+          (navPrev)="goPrev()"
+          (navNext)="goNext()"
         />
 
         <app-detail-tabs class="tabs" [active]="activeTab()" (tabChange)="selectTab($event)" />
