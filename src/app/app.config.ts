@@ -14,6 +14,7 @@ import { FAVOURITES_STORE } from './data/favourites/favourites-store';
 import { IonicStorageFavouritesStore } from './data/favourites/ionic-storage-favourites.store';
 import { CONNECTIVITY } from './data/platform/connectivity';
 import { platformConnectivity } from './data/platform/platform-connectivity';
+import { HardwareBackService } from './core/hardware-back/hardware-back.service';
 import { errorNormaliseInterceptor } from './core/interceptors/error-normalise.interceptor';
 import { retryBackoffInterceptor } from './core/interceptors/retry-backoff.interceptor';
 import { routes } from './app.routes';
@@ -31,5 +32,6 @@ export const appConfig: ApplicationConfig = {
     provideAppInitializer(() => {
       void inject(PokemonIndexService).load();
     }),
+    provideAppInitializer(() => inject(HardwareBackService).start()),
   ],
 };
