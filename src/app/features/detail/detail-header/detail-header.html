@@ -27,6 +27,15 @@
 </div>
 
 <div class="sprites">
+  <app-pokemon-nav
+    [enabled]="navEnabled()"
+    [indexReady]="navIndexReady()"
+    [prevId]="navPrevId()"
+    [nextId]="navNextId()"
+    (prev)="navPrev.emit()"
+    (next)="navNext.emit()"
+  />
+
   <div class="art">
     <app-sprite-image [src]="displaySrc()" [alt]="displayAlt()" />
   </div>

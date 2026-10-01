@@ -79,14 +79,15 @@
 .sprites {
   position: relative;
   width: 100%;
-  max-width: 240px;
-  margin: var(--pkx-space-8) auto 0;
+  max-height: 250px;
   aspect-ratio: 1;
 }
 
 .art {
   width: 100%;
-  height: 100%;
+  max-width: 240px;
+  margin: var(--pkx-space-8) auto 0;
+  height: fit-content;
 }
 
 .art app-sprite-image {

@@ -6,6 +6,7 @@ import { Pokemon } from '../../../domain/pokemon';
 import { FavouriteButton } from '../../../shared/ui/favourite-button/favourite-button';
 import { SpriteImage } from '../../../shared/ui/sprite-image/sprite-image';
 import { TypeBadge } from '../../../shared/ui/type-badge/type-badge';
+import { PokemonNav } from '../pokemon-nav/pokemon-nav';
 
 addIcons({ arrowBack, swapHorizontal });
 
@@ -18,7 +19,7 @@ addIcons({ arrowBack, swapHorizontal });
 @Component({
   selector: 'app-detail-header',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [IonIcon, FavouriteButton, SpriteImage, TypeBadge],
+  imports: [IonIcon, FavouriteButton, SpriteImage, TypeBadge, PokemonNav],
   templateUrl: './detail-header.html',
   styleUrl: './detail-header.scss',
 })
@@ -30,10 +31,21 @@ export class DetailHeader {
   readonly favourite = input<boolean>(false);
   /** Whether the saved set has been read, so the heart is only shown once it can be trusted. */
   readonly favouriteReady = input<boolean>(false);
+  /** Whether the swipe/arrow Pokémon navigation is on in principle (Browse origin). */
+  readonly navEnabled = input<boolean>(false);
+  /** Whether the phonebook index is ready, so prev/next can leave the loading state. */
+  readonly navIndexReady = input<boolean>(false);
+  /** Previous entry id in list order, undefined at the start of the Dex. */
+  readonly navPrevId = input<number | undefined>(undefined);
+  /** Next entry id in list order, undefined at the end of the Dex. */
+  readonly navNextId = input<number | undefined>(undefined);
   /** Emitted when the Trainer taps Back. */
   readonly back = output<void>();
   /** Emitted when the Trainer taps the heart; the parent owns the toggle. */
   readonly favouriteToggle = output<void>();
+  /** Emitted when the Trainer taps the prev/next chevron. */
+  readonly navPrev = output<void>();
+  readonly navNext = output<void>();
 
   /** True once the Trainer flips to the back sprite; also drives aria-pressed. */
   protected readonly flipped = signal(false);
