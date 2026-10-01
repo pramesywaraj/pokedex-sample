@@ -8,6 +8,8 @@
   <div class="page">
     <app-search-bar [disabled]="index.disabled()" (queryChange)="onQueryChange($event)" />
 
+    <app-type-filter [active]="feed.activeType()" (pick)="onTypePick($event)" />
+
     @if (index.error()) {
       <app-state-screen
         title="Search unavailable"
@@ -25,7 +27,7 @@
           </div>
         }
         @case ('error') {
-          <app-error-state message="Couldn't load the Pokédex." (retry)="feed.loadNext()" />
+          <app-error-state message="Couldn't load the Pokédex." (retry)="retryFirstPage()" />
         }
         @case ('empty') {
           <app-state-screen
@@ -39,7 +41,11 @@
           <div class="grid">
             @for (pokemon of feed.items(); track pokemon.id) {
               @let types = index.typesOf(pokemon.id);
-              <a class="card-link" [routerLink]="['/pokemon', pokemon.id]">
+              <a
+                class="card-link"
+                [routerLink]="['/pokemon', pokemon.id]"
+                [state]="detailNavState()"
+              >
                 <app-pokemon-card
                   [id]="pokemon.id"
                   [name]="pokemon.name"

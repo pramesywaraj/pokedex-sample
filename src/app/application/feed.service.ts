@@ -90,7 +90,7 @@ export class FeedService {
 
   /**
    * Switches to browse mode and clears any active search or Type filter. Safe
-   * to call when already in browse mode, only re-seeds the grid if it isn't
+   * to call when already in browse mode, only re seeds the grid if it isn't
    * already loaded.
    */
   showBrowse(): Promise<void> {

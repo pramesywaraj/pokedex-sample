@@ -3,7 +3,7 @@ import { PokemonTypeName, pokemonTypeNames } from '../../../domain/pokemon-type-
 
 /**
  * The horizontally scrolling chip row above the Browse grid. A leading neutral
- * All chip returns the full Dex, then one solid chip per Type. Dumb primitive,
+ * `All` chip returns the full Dex, then one solid chip per Type. Dumb primitive,
  * the active Type comes in and taps go out as picks.
  */
 @Component({
